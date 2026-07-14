@@ -1,0 +1,2857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ALLCPR Site Intelligence</title>
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin="" />
+<style>
+  :root {
+    --bg: #f5f5f7; --panel: rgba(255,255,255,0.78); --panel-solid: #ffffff;
+    --ink: #1d1d1f; --muted: #6e6e73; --line: #e3e3e6; --accent: #0071e3;
+    --hist: #0a84ff; --model: #30b06a; --candidate: #5b2a86;
+    --low: #ffe08a; --mid: #ff9f43; --high: #ff453a;
+    --shadow: 0 8px 30px rgba(0,0,0,.12); --radius: 16px; --sheet-height: 26vh;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased;
+  }
+  /* ---- Full-screen map (Apple Maps / Zillow feel) ---- */
+  #map-wrap { position: fixed; inset: 0; width: 100%; height: 100vh; min-height: 850px; z-index: 0; }
+  #map { position: absolute; inset: 0; height: 100vh; min-height: 850px; }
+  .float { position: fixed; z-index: 600; }
+  .glass {
+    background: var(--panel); backdrop-filter: saturate(180%) blur(22px);
+    -webkit-backdrop-filter: saturate(180%) blur(22px);
+    border: 1px solid rgba(255,255,255,.5); border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .controls { top: 16px; left: 16px; right: 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 12px; }
+  .brand { font-weight: 600; font-size: .98rem; margin-right: 4px; white-space: nowrap; }
+  .brand small { display: block; font-weight: 400; color: var(--muted); font-size: .72rem; }
+  .ctl-label { font-size: .66rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-right: 3px; }
+  .seg { display: inline-flex; background: rgba(120,120,128,.16); border-radius: 11px; padding: 2px; }
+  .seg button { border: 0; background: transparent; padding: 7px 13px; cursor: pointer; font-size: .85rem; color: var(--ink); border-radius: 9px; transition: all .18s ease; white-space: nowrap; }
+  .seg button:hover { background: rgba(255,255,255,.5); }
+  .seg button.active { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.16); font-weight: 600; }
+  .seg.layer button.active[data-layer="historical"] { color: var(--hist); }
+  .seg.layer button.active[data-layer="modeled"] { color: var(--model); }
+  .lang-control { margin-left: 0; }
+  .lang-control .seg button { padding: 6px 10px; font-size: .78rem; }
+  .search { display: flex; gap: 6px; }
+  .search input { padding: 7px 11px; border: 1px solid var(--line); border-radius: 10px; font-size: .88rem; width: 160px; background: #fff; }
+  .search button { padding: 7px 15px; border: 0; border-radius: 10px; cursor: pointer; background: var(--accent); color: #fff; font-weight: 600; font-size: .85rem; }
+  #status { bottom: calc(var(--sheet-height, 26vh) + 12px); left: 16px; max-width: 52%; padding: 7px 12px; font-size: .82rem; color: var(--muted); border-radius: 11px; }
+  .legend { bottom: calc(var(--sheet-height, 26vh) + 12px); right: 16px; padding: 10px 12px; font-size: .78rem; max-width: 280px; border-radius: 12px; }
+  .legend b { display: block; margin-bottom: 5px; }
+  .legend .scale { display: flex; gap: 10px; margin-bottom: 4px; }
+  .legend .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+  .legend .gradient-strip { height: 10px; border-radius: 999px; margin: 7px 0 4px; background: linear-gradient(90deg,#2f3bff,#25a7ff,#28d17c,#ffe66d,#ff9b32,#ff3b30); box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+  .legend .gradient-labels { display: flex; justify-content: space-between; color: var(--muted); font-size: .68rem; margin-bottom: 5px; }
+  .legend .note { color: var(--muted); font-size: .72rem; line-height: 1.35; }
+  .viewport-top { top: 104px; right: 16px; width: min(340px, calc(100vw - 32px)); max-height: 38vh; overflow: hidden; padding: 10px 12px; border-radius: 12px; font-size: .82rem; }
+  .viewport-top details { margin-top: 0; border-top: 0; padding-top: 0; }
+  .viewport-top summary { color: var(--ink); display: flex; align-items: center; justify-content: space-between; }
+  .viewport-list { max-height: calc(38vh - 42px); overflow-y: auto; margin-top: 7px; }
+  .top-zip-row { width: 100%; border: 0; background: rgba(255,255,255,.72); border-radius: 8px; margin: 5px 0; padding: 8px 9px; text-align: left; cursor: pointer; display: grid; grid-template-columns: auto 1fr auto; gap: 6px 8px; align-items: center; }
+  .top-zip-row:hover { background: #fff; }
+  .top-zip-row .zip { font-weight: 700; }
+  .top-zip-row .score { font-weight: 700; color: var(--accent); }
+  .top-zip-row .meta { grid-column: 1 / -1; color: var(--muted); font-size: .73rem; line-height: 1.25; }
+  .export-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .export-actions .btn { padding: 7px 8px; font-size: .72rem; }
+  /* ---- Bottom sheet (overlays the map) ---- */
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 500;
+    height: var(--sheet-height); min-height: 58px;
+    background: var(--panel); backdrop-filter: saturate(180%) blur(22px);
+    -webkit-backdrop-filter: saturate(180%) blur(22px);
+    border-top: 1px solid rgba(255,255,255,.5); border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 30px rgba(0,0,0,.18);
+    display: flex; flex-direction: column; transition: height .25s ease;
+  }
+  .sheet.collapsed { height: 58px; }
+  .grabber { flex: 0 0 auto; display: flex; justify-content: center; padding: 8px 0 4px; cursor: ns-resize; touch-action: none; user-select: none; }
+  .grabber::before { content: ""; width: 42px; height: 5px; border-radius: 3px; background: rgba(120,120,128,.45); }
+  body.sheet-resizing, body.sheet-resizing * { cursor: ns-resize !important; user-select: none; }
+  .panes { flex: 1 1 auto; overflow-y: auto; padding: 0 16px 28px; max-width: 1240px; width: 100%; margin: 0 auto; }
+  .tabbar { display: flex; gap: 4px; padding: 4px 12px 8px; max-width: 1240px; width: 100%; margin: 0 auto; border-radius: 14px; overflow-x: auto; }
+  .tabbar button { flex: 0 0 auto; border: 0; background: transparent; padding: 9px 16px; border-radius: 10px; cursor: pointer; font-size: .9rem; font-weight: 600; color: var(--muted); transition: all .18s; white-space: nowrap; }
+  .tabbar button:hover { color: var(--ink); }
+  .tabbar button.active { background: #fff; color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+  .tabbar .pill { display: inline-block; min-width: 18px; padding: 0 6px; margin-left: 5px; border-radius: 999px; background: var(--accent); color: #fff; font-size: .72rem; line-height: 18px; text-align: center; }
+  .pane { display: none; }
+  .pane.active { display: block; animation: fade .2s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .card { background: var(--panel-solid); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .card h2 { margin: 0 0 2px; font-size: 1.12rem; } .card h3 { margin: 14px 0 6px; font-size: .92rem; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 600; vertical-align: middle; }
+  .badge.hist { background: rgba(10,132,255,.12); color: var(--hist); }
+  .badge.model { background: rgba(48,176,106,.14); color: var(--model); }
+  .badge.tier { background: #efe7fb; color: var(--candidate); }
+  .badge.commercial { background: #e6f6ec; color: #1a7f43; }
+  .badge.decision-status { border: 1px solid rgba(0,0,0,.04); }
+  .badge.status-ready { background: #e6f6ec; color: #1a7f43; }
+  .badge.status-strong { background: #edf7ff; color: #075985; }
+  .badge.status-validation { background: #fff8e6; color: #7a5600; }
+  .badge.status-field { background: #f0f0f3; color: #3a3a3c; }
+  .badge.status-saturation { background: #fff0f3; color: #a23; }
+  .badge.status-insufficient { background: #f4f4f5; color: #5f6368; }
+  .badge.status-review { background: #f0f0f3; color: #3a3a3c; }
+  .reco { display: inline-block; padding: 6px 13px; border-radius: 11px; font-size: .9rem; font-weight: 600; background: #f0f0f3; margin: 8px 0; }
+  .reco.go { background: #e6f6ec; color: #1a7f43; }
+  .decision-summary { background: #f8fafc; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 13px 14px; margin: 12px 0; }
+  .decision-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .decision-eyebrow { color: var(--muted); font-size: .68rem; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 3px; }
+  .decision-title { font-size: 1.08rem; font-weight: 760; color: var(--ink); line-height: 1.25; }
+  .decision-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 10px; margin-top: 10px; }
+  .decision-item { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; min-height: 78px; }
+  .decision-item .label { color: var(--muted); font-size: .68rem; font-weight: 750; letter-spacing: .03em; text-transform: uppercase; }
+  .decision-item .value { color: #1f3864; font-size: 1rem; font-weight: 750; line-height: 1.3; margin-top: 4px; }
+  .decision-summary .reason { background: #fff; border: 1px solid var(--line); }
+  .score-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 9px; margin: 8px 0 10px; }
+  .score-card { background: #f5f7fb; border: 1px solid var(--line); border-left: 3px solid #1f3864; border-radius: 8px; padding: 10px 11px; min-height: 108px; }
+  .score-card .sc-label { color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+  .score-card .sc-value { font-size: 1.05rem; font-weight: 750; color: #1f3864; margin: 3px 0 6px; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25; }
+  .score-card .sc-meta { color: #374151; font-size: .78rem; line-height: 1.32; overflow-wrap: anywhere; }
+  .score-card .sc-meta b { color: var(--ink); font-weight: 650; }
+  .decision-item .value { overflow-wrap: anywhere; word-break: break-word; }
+  /* Plain-English "At a glance" snapshot (boss-friendly, no raw stats) */
+  .glance { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 9px; margin: 12px 0; }
+  .glance-item { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #fff; }
+  .glance-item .g-label { color: var(--muted); font-size: .68rem; font-weight: 750; letter-spacing: .03em; text-transform: uppercase; }
+  .glance-item .g-value { font-size: 1.02rem; font-weight: 750; margin-top: 4px; display: flex; align-items: center; gap: 7px; line-height: 1.25; }
+  .glance-item .g-sub { color: var(--muted); font-size: .76rem; margin-top: 4px; line-height: 1.3; }
+  .glance-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+  .g-strong { color: #1a7f43; } .glance-dot.g-strong { background: #1fa155; }
+  .g-medium { color: #8a6100; } .glance-dot.g-medium { background: #e0a100; }
+  .g-weak { color: #a2231d; } .glance-dot.g-weak { background: #c0392b; }
+  .g-none { color: #5f6368; } .glance-dot.g-none { background: #b0b3b8; }
+  .plain-verdict { font-size: 1.12rem; font-weight: 750; color: #1f3864; margin: 2px 0 2px; line-height: 1.3; }
+  .plain-line { font-size: .92rem; line-height: 1.45; color: var(--ink); margin: 6px 0; }
+  .adv-wrap > summary { color: var(--muted); font-weight: 650; }
+  .next-action { background: #eef4ff; border: 1px solid #d4e2fb; border-left: 3px solid #1f66d0; border-radius: 8px; padding: 9px 11px; font-size: .92rem; line-height: 1.4; margin: 8px 0; color: #1f3864; }
+  .next-action .na-label { display: block; font-size: .68rem; font-weight: 750; letter-spacing: .03em; text-transform: uppercase; color: #1f66d0; margin-bottom: 2px; }
+  .score-note { background: #f7faf7; border: 1px solid #d9eadf; border-radius: 8px; padding: 9px 11px; font-size: .84rem; line-height: 1.35; color: #2f4538; margin: 8px 0 10px; }
+  .score-breakdown { background: #f7f9fc; border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; margin: 4px 0 12px; }
+  .score-breakdown h3 { margin: 0 0 7px; font-size: .82rem; }
+  .bd-table { display: flex; flex-direction: column; }
+  .bd-row { display: grid; grid-template-columns: minmax(0,1fr) auto 56px; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid #e7ecf3; }
+  .bd-label { color: var(--ink); font-size: .84rem; overflow-wrap: anywhere; }
+  .bd-note { color: var(--muted); font-size: .72rem; line-height: 1.3; margin-top: 2px; }
+  .bd-calc { color: var(--muted); font-size: .8rem; white-space: nowrap; text-align: right; }
+  .bd-pts { font-weight: 700; color: #1f3864; font-size: .86rem; text-align: right; }
+  .bd-sub .bd-label, .bd-sub .bd-pts { font-weight: 700; }
+  .bd-pen .bd-pts { color: #a1341f; }
+  .bd-final { border-bottom: none; border-top: 2px solid #1f3864; margin-top: 2px; padding-top: 7px; }
+  .bd-final .bd-label, .bd-final .bd-pts { font-weight: 800; font-size: .95rem; }
+  .bd-summary { margin-top: 9px; }
+  .mini-score { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 10px; margin: 8px 0 10px; }
+  .mini-score h4 { margin: 0 0 5px; font-size: .82rem; }
+  .metric-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+  .metric-row span:last-child { font-weight: 600; }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; }
+  .metric { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+  .metric .label { font-size: .66rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .metric .value { font-size: 1rem; font-weight: 600; margin-top: 2px; }
+  .reason { background: var(--bg); border-radius: 11px; padding: 11px 13px; margin: 10px 0; font-size: .9rem; }
+  .caveat { background: #fff8e6; border: 1px solid #ffe8a3; border-radius: 11px; padding: 10px 12px; font-size: .82rem; color: #6b5400; margin: 10px 0; }
+  .commercial-box { background: #f3fbf6; border: 1px solid #cdeed9; border-radius: 11px; padding: 11px 13px; margin: 10px 0; }
+  details { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+  details > summary { cursor: pointer; font-weight: 600; color: var(--accent); font-size: .9rem; }
+  ul.tight { margin: 6px 0; padding-left: 18px; } ul.tight li { margin: 3px 0; }
+  .risk { color: #a23; font-size: .86rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 7px 0; }
+  .chip { background: #f0f0f3; border-radius: 999px; padding: 4px 8px; font-size: .75rem; color: var(--muted); }
+  .chip.risk-flag { background: #fff0f3; color: #a23; }
+  .btn { border: 0; border-radius: 10px; padding: 8px 14px; font-weight: 600; font-size: .85rem; cursor: pointer; }
+  .btn.primary { background: var(--accent); color: #fff; } .btn.ghost { background: #f0f0f3; color: var(--ink); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  table.cmp { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  table.cmp th, table.cmp td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.cmp th { color: var(--muted); font-weight: 600; font-size: .72rem; text-transform: uppercase; letter-spacing: .03em; }
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .muted { color: var(--muted); }
+  .cand { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .88rem; } .cand .nm { font-weight: 600; }
+  pre.raw { white-space: pre-wrap; font-size: .76rem; background: var(--bg); border-radius: 8px; padding: 10px; max-height: 240px; overflow: auto; }
+  a { color: var(--accent); }
+  @media (max-width: 880px) {
+    /* The map is a fixed full-screen layer; never force it taller than the
+       viewport (the 850px min-height overflowed small phones). */
+    #map-wrap, #map { min-height: 0; }
+    /* Pinch-to-zoom on touch; the +/- control collided with the brand. */
+    .leaflet-control-zoom { display: none; }
+    /* Compact, scrollable control stack — each control is one tidy row whose
+       segmented buttons scroll horizontally instead of overflowing the screen. */
+    .controls {
+      top: 8px; left: 8px; right: 8px;
+      gap: 6px; padding: 8px 10px;
+      flex-direction: column; align-items: stretch;
+      max-height: 46vh; overflow-y: auto;
+    }
+    .brand { font-size: .92rem; margin: 0 0 2px; }
+    .brand small { font-size: .68rem; }
+    .controls > div { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .ctl-label { flex: 0 0 auto; margin: 0; }
+    .seg { flex: 1 1 auto; min-width: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .seg::-webkit-scrollbar { height: 0; }
+    .seg button { padding: 7px 12px; font-size: .82rem; }
+    .lang-control { margin-left: 0; }
+    .search { width: 100%; margin-left: 0; }
+    .search input { flex: 1; width: auto; }
+    /* Legend duplicates the controls/About tab — hide it to free the map. */
+    .legend { display: none; }
+    /* Stack the remaining floats just above the bottom sheet, no overlap. */
+    .viewport-top { top: auto; bottom: calc(var(--sheet-height, 26vh) + 44px);
+                    left: 8px; right: 8px; width: auto; max-height: 20vh; }
+    #status { left: 8px; right: 8px; max-width: none; font-size: .74rem;
+              bottom: calc(var(--sheet-height, 26vh) + 10px); }
+  }
+</style>
+</head>
+<body>
+<div id="map-wrap">
+  <div id="map"></div>
+  <div class="float glass controls">
+    <div class="brand"><span data-i18n="title">ALLCPR Site Intelligence</span><small data-i18n="subtitle">v2.0 · Internal decision-support product</small></div>
+    <div><span class="ctl-label" data-i18n="layer">Layer</span>
+      <div class="seg layer" id="layer-seg">
+        <button data-layer="historical" class="active" data-i18n="historicalAllcpr">Historical ALLCPR</button>
+        <button data-layer="modeled" data-i18n="modeledNational">Modeled national</button>
+      </div></div>
+    <div><span class="ctl-label" data-i18n="map">Map</span>
+      <div class="seg" id="basemap-seg">
+        <button data-basemap="street" class="active" data-i18n="street">Street</button>
+        <button data-basemap="satellite" data-i18n="satellite">Satellite</button>
+      </div></div>
+    <div><span class="ctl-label" data-i18n="view">View</span>
+      <div class="seg" id="viz-seg">
+        <button data-viz="points" data-i18n="zipPoints">ZIP points</button>
+        <button data-viz="heat" data-i18n="smoothHeat">Smooth heat</button>
+        <button data-viz="both" class="active" data-i18n="both">Both</button>
+      </div></div>
+    <div><span class="ctl-label" data-i18n="boundaryOverlay">ZIP boundaries</span>
+      <div class="seg" id="boundary-seg">
+        <button data-boundary="off" class="active" data-i18n="off">Off</button>
+        <button data-boundary="on" data-i18n="on">On</button>
+      </div></div>
+    <div><span class="ctl-label" data-i18n="heat">Heat</span>
+      <div class="seg" id="heat-intensity-seg">
+        <button data-heat-intensity="light" data-i18n="light">Light</button>
+        <button data-heat-intensity="normal" class="active" data-i18n="normal">Normal</button>
+        <button data-heat-intensity="strong" data-i18n="strong">Strong</button>
+      </div></div>
+    <div class="lang-control"><span class="ctl-label" data-i18n="language">Language</span>
+      <div class="seg" id="lang-seg" aria-label="Language">
+        <button data-lang="en" class="active">English</button>
+        <button data-lang="zh">中文</button>
+      </div></div>
+    <div><span class="ctl-label" data-i18n="course">Course</span>
+      <div class="seg" id="mode-seg">
+        <button data-mode="overall" class="active" data-i18n="overall">Overall</button>
+        <button data-mode="aha_bls">AHA BLS</button>
+        <button data-mode="arc_bls">ARC BLS</button>
+        <button data-mode="arc_cpr">ARC CPR</button>
+      </div></div>
+    <div class="search">
+      <input id="zip-input" placeholder="ZIP, e.g. 95112" data-i18n-placeholder="zipPlaceholder" inputmode="numeric" maxlength="5" />
+      <button id="zip-search-btn" data-i18n="search">Search</button>
+    </div>
+  </div>
+  <div class="float glass legend" id="legend">
+    <b id="legend-title">Overall demand</b>
+    <div class="gradient-strip" aria-hidden="true"></div>
+    <div class="gradient-labels"><span data-i18n="low">Low</span><span data-i18n="medium">Medium</span><span data-i18n="high">High</span></div>
+    <div class="note" id="legend-note"></div>
+  </div>
+  <div class="float glass viewport-top" id="viewport-top-panel">
+    <details open>
+      <summary data-i18n="topZips">Top ZIPs in current view</summary>
+      <div class="viewport-list" id="viewport-top-list"><p class="muted" data-i18n="moveZoomRank">Move or zoom the map to rank visible ZIPs.</p></div>
+      <div class="export-actions" id="export-actions">
+        <button class="btn ghost" id="export-view-top" data-i18n="exportTopViewCsv">Export top view CSV</button>
+        <button class="btn ghost" id="export-map-view" data-i18n="exportMapViewCsv">Export map view CSV</button>
+        <button class="btn ghost" id="export-national-top" data-i18n="exportTop100Csv">Export top 100 CSV</button>
+        <button class="btn ghost" id="export-qa" data-i18n="exportQaJson">Export QA JSON</button>
+      </div>
+    </details>
+  </div>
+  <div class="float glass" id="status">Loading…</div>
+</div>
+
+<div class="sheet" id="sheet">
+  <div class="grabber" id="grabber" title="Drag to resize" data-i18n-title="dragResize"></div>
+  <div class="tabbar" id="tabbar">
+    <button data-tab="zip" class="active" data-i18n="zip">ZIP</button>
+    <button data-tab="summary" data-i18n="summary">Summary</button>
+    <button data-tab="compare"><span data-i18n="compare">Compare</span><span class="pill" id="cmp-count" style="display:none">0</span></button>
+    <button data-tab="candidates" data-i18n="candidates">Candidates</button>
+    <button data-tab="validation" data-i18n="validation">Validation</button>
+  </div>
+  <div class="panes">
+
+  <section class="pane active" id="pane-zip">
+    <div class="card" id="detail-card">
+      <p class="muted" data-i18n="emptyZipDetail">Pick a layer, then click the map or search a ZIP to see its score, history, commercial reality, and recommendation.</p>
+    </div>
+  </section>
+
+  <section class="pane" id="pane-summary">
+    <div class="card">
+      <h2><span data-i18n="executiveSummary">Executive summary</span> <span class="badge hist" data-i18n="realHistory">Real history</span></h2>
+      <div class="summary-grid" id="summary-grid"></div>
+      <details id="d-full"><summary data-i18n="fullExecutiveSummary">Full executive summary</summary><p id="full-summary" class="muted" data-i18n="noNarrative">No narrative available.</p></details>
+      <details id="d-checklist"><summary data-i18n="beforeLeasingChecklist">Before leasing checklist</summary><p id="before-leasing"></p><ul class="tight" id="next-actions"></ul></details>
+      <details id="d-sources"><summary data-i18n="dataSources">Data sources</summary><ul class="tight" id="data-sources"></ul></details>
+    </div>
+  </section>
+
+  <section class="pane" id="pane-compare">
+    <div class="card">
+      <h2><span data-i18n="zipComparison">ZIP comparison</span> <span class="muted" style="font-size:.85rem;font-weight:400" data-i18n="upTo5">(up to 5)</span></h2>
+      <div style="display:flex;gap:8px;margin:8px 0;">
+        <button class="btn ghost" id="cmp-export" disabled data-i18n="exportCsv">Export CSV</button>
+        <button class="btn ghost" id="cmp-clear" disabled data-i18n="clearAll">Clear all</button>
+      </div>
+      <div class="scroll-x" id="cmp-table-wrap"><p class="muted" data-i18n="noZipsAdded">No ZIPs added yet. Open a ZIP and tap “Add to comparison”.</p></div>
+    </div>
+  </section>
+
+  <section class="pane" id="pane-candidates">
+    <div class="card"><h2 data-i18n="candidateSites">Candidate sites</h2><div id="candidates-list"><p class="muted" data-i18n="noCandidateSites">No candidate sites in report.</p></div></div>
+  </section>
+
+  <section class="pane" id="pane-validation">
+    <div class="card">
+      <h2 data-i18n="modelValidation">Model validation</h2>
+      <div id="backtest-body"><p class="muted" data-i18n="loadingModelValidation">Loading model validation…</p></div>
+    </div>
+    <div class="card">
+      <h2 data-i18n="aboutDataTiers">About &amp; data tiers</h2>
+      <details open><summary data-i18n="howToUseIt">How to use it</summary>
+        <ul class="tight">
+          <li><b>Historical ALLCPR</b> = real Enrollware/class history. Course buttons show AHA BLS / ARC BLS / ARC CPR student counts.</li>
+          <li><b>Modeled baseline</b> = public-data estimate from Census ACS + Gazetteer, for every US ZIP. Course buttons show demand <i>tilts</i> (AHA BLS &amp; ARC BLS = healthcare-workforce BLS demand; ARC CPR = community/layperson CPR demand) — the modeled layer estimates demand <i>type</i>, not AHA-vs-ARC brand preference.</li>
+          <li><b>Enriched modeled</b> = modeled baseline + Places / Routes / competitor / commercial validation. Enriched validation available for priority ZIPs.</li>
+          <li><b>Modeled score</b> = public-data estimate. <b>Historical score</b> = real ALLCPR evidence.</li>
+          <li><b>Smooth heat</b> = regional intensity, not exact ZIP boundaries. The ZIP detail panel is exact ZIP-level evidence.</li>
+          <li>Google Places is context enrichment only and is not called on page load.</li>
+          <li>Search a ZIP or click the map to inspect it; add ZIPs to Compare. Treat recommendations as test/validation guidance, not a lease guarantee.</li>
+        </ul></details>
+      <details><summary data-i18n="dataTiersQuality">Data tiers &amp; quality</summary>
+        <ul class="tight">
+          <li><span class="badge hist">Real history</span> measured Enrollware outcomes.</li>
+          <li><span class="badge model">Modeled</span> public Census estimate (baseline).</li>
+          <li><span class="badge tier">Enriched</span> priority ZIPs with Places/Routes/competitor/commercial validation.</li>
+          <li><span class="badge commercial">Commercial validated</span> a manually-checked, available space exists.</li>
+        </ul></details>
+      <details><summary data-i18n="methodologyCaveats">Methodology &amp; caveats</summary>
+        <ul class="tight" id="data-notes"></ul>
+        <p class="muted" id="methodology"></p></details>
+    </div>
+  </section>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script>
+"use strict";
+const I18N = {
+  en: {
+    title:"ALLCPR Site Intelligence", subtitle:"v2.0 · Internal decision-support product",
+    language:"Language", layer:"Layer", map:"Map", view:"View", heat:"Heat", course:"Course",
+    historicalAllcpr:"Historical ALLCPR", modeledNational:"Modeled national", street:"Street", satellite:"Satellite",
+    zipPoints:"ZIP points", smoothHeat:"Smooth heat", both:"Both", zipBoundaries:"ZIP boundaries",
+    boundaryOverlay:"ZIP boundaries", off:"Off", on:"On", preparingHeat:"Preparing heatmap…", boundariesOverlayOn:"ZIP boundaries show exact ZCTA polygon shading where boundary data is available.",
+    light:"Light", normal:"Normal", strong:"Strong", overall:"Overall", search:"Search", zipPlaceholder:"ZIP, e.g. 95112",
+    low:"Low", medium:"Medium", high:"High", med:"Med", topZips:"Top ZIPs in current view",
+    moveZoomRank:"Move or zoom the map to rank visible ZIPs.", exportTopViewCsv:"Export top view CSV",
+    exportMapViewCsv:"Export map view CSV", exportTop100Csv:"Export top 100 CSV", exportQaJson:"Export QA JSON",
+    dragResize:"Drag to resize", zip:"ZIP", summary:"Summary", compare:"Compare", candidates:"Candidates", validation:"Validation",
+    emptyZipDetail:"Pick a layer, then click the map or search a ZIP to see its score, history, commercial reality, and recommendation.",
+    executiveSummary:"Executive summary", realHistory:"Real history", fullExecutiveSummary:"Full executive summary",
+    noNarrative:"No narrative available.", beforeLeasingChecklist:"Before leasing checklist", dataSources:"Data sources",
+    zipComparison:"ZIP comparison", upTo5:"(up to 5)", exportCsv:"Export CSV", clearAll:"Clear all",
+    noZipsAdded:"No ZIPs added yet. Open a ZIP and tap “Add to comparison”.", candidateSites:"Candidate sites",
+    noCandidateSites:"No candidate sites in report.", modelValidation:"Model validation",
+    loadingModelValidation:"Loading model validation…", aboutDataTiers:"About & data tiers", howToUseIt:"How to use it",
+    dataTiersQuality:"Data tiers & quality", methodologyCaveats:"Methodology & caveats",
+    overallDemand:"Overall demand", overallOpportunity:"Overall opportunity",
+    healthcareBlsDemand:"Healthcare-workforce (BLS) demand", communityCprDemand:"Community (CPR) demand",
+    demand:"demand", students:"students", publicEstimate:"public-data estimate", realEnrollware:"real Enrollware activity",
+    addToComparison:"Add to comparison", exportZipJson:"Export ZIP JSON", why:"Why:", nextSteps:"Next steps",
+    validationNextSteps:"Next steps (validate before leasing)", automatedNextSteps:"Automated next steps",
+    keepLowPriority:"Keep this ZIP low priority until stronger automated signals appear.",
+    addEnrichmentSignals:"Add Places, healthcare-anchor, community-facility, competitor, or commercial signals when available.",
+    autoUpgradeIfSupported:"Upgrade automatically if validation signals improve.",
+    monitorWatchlist:"Keep on watchlist and rerun enrichment on the next batch.",
+    screenCommercialFit:"Screen commercial fit only after automated demand signals support it.",
+    riskFlags:"Risk flags", noneFlagged:"None flagged.", noRiskFlags:"No risk flags attached.",
+    commercialValidation:"Commercial validation", commercialNotAdded:"Commercial validation not added yet. Check rent, parking, classroom size, and lease availability before making a decision.",
+    spaceAvailable:"Space available", validated:"Validated", availableSpaces:"Available spaces", rentRange:"Rent range",
+    parking:"Parking", classroomFit:"Classroom fit", updated:"Updated", sources:"Sources", link:"link",
+    scoreExplanation:"Score explanation", topScoreDrivers:"Top score drivers", weaknesses:"Weaknesses",
+    recommendedNextAction:"Recommended next action", noScoreExplanation:"No modeled-score explanation available.",
+    noStrongDrivers:"No strong public-data drivers attached.", noMajorWeaknesses:"No major modeled weaknesses attached.",
+    insufficientData:"Insufficient data", reviewModeledEstimate:"Review modeled estimate.", reviewHistoricalEvidence:"Review historical evidence.",
+    realHistoryAttached:"This ZIP has real ALLCPR operational history.",
+    missingCentroid:"ZIP found, but centroid coordinates are missing — can't locate it on the map.",
+    modeledCaveat:"Modeled estimate from public Census data — not real enrollment history. Course tilt reflects BLS-workforce vs community-CPR demand, not AHA-vs-ARC brand.",
+    noHistoryAttached:"No ALLCPR historical activity is attached to this ZIP. This is a public-data estimate only.",
+    enrichmentData:"Enrichment data (bulk datasets · Places · commercial)", baselineOnly:"Baseline estimate only. Enriched validation available for priority ZIPs.",
+    priorityEnrichment:"Enriched validation available for priority ZIPs.",
+    whyThisScore:"Why this score", rawModeledMetrics:"Raw modeled metrics", rawZipMetrics:"Raw ZIP metrics",
+    provenAllcprDemand:"Proven ALLCPR demand", modelAgreement:"Model agreement", courseComparison:"Course comparison",
+    scoreMeaning:"Meaning", scoreSource:"Source", marketOpportunityStrength:"Market opportunity strength",
+    marketOpportunityScoreV20:"Market Opportunity Score v2.0", baselineMarketV20:"Baseline v2.0 Market View",
+    baselineMarketHelp:"This is the baseline market-demand estimate. Use Site Priority v2.1 for opening decisions.",
+    modeledDemandScore:"modeled demand score", realWorldSupport:"Real-world API and commercial support",
+    enrichmentSignals:"enrichment signals", historicalClassConfidence:"ALLCPR historical class-volume confidence",
+    historicalAllcprEnrollware:"historical ALLCPR / Enrollware data", baselineCompleteness:"Baseline public-data completeness",
+    censusGazetteerInputs:"Census / Gazetteer baseline inputs",
+    scoreClarityNote:"Market Opportunity Score v2.0 measures how strong the ZIP is as a market. Use Site Priority Decision and Final Site Priority Score v2.1 for opening decisions.",
+    enrichedThisPriorityZip:"Enriched validation available for this priority ZIP.",
+    baselinePriorityManual:"This ZIP currently uses baseline public-data estimates. Enriched validation is available for priority ZIPs or manual review.",
+    priorityCoverageSummary:"2,694 priority ZIPs enriched; other ZIPs use baseline public-data estimates.",
+    requestManualValidation:"Request manual validation",
+    manualValidationHint:"Manual validation should be run intentionally with --zips or --zips-from to avoid unnecessary API spend.",
+    topDrivers:"Top drivers", watchouts:"Watchouts", missingEnrichment:"Missing enrichment",
+    competitorSaturation:"Competitor saturation", weakHealthcareEmploymentShare:"Weak healthcare employment share",
+    healthcareCommercialValidation:"Healthcare / commercial validation",
+    courseLabel:"Course", classCount:"Class count", avgStudents:"Average students", fillRate:"Fill rate", confidence:"Confidence",
+    overallDemandScore:"Overall demand score", courseValue:"value", provenDemandScore:"Proven demand score",
+    historicalConfidence:"Historical Confidence", totalStudents:"Total students", bestHistoricalCourse:"Best historical course",
+    courseMix:"Course mix", agreement:"Agreement", modelError:"Model error", calibrationNote:"Calibration note",
+    overallOpp:"Overall opportunity", opportunityScore:"Market Opportunity Score v2.0", selectedTilt:"Selected tilt", apiPriority:"API priority", apiCandidateScore:"API candidate score",
+    recommendedForLivePlaces:"Recommended for live Places", population:"Population", populationDensity:"Population density (/sq mi)",
+    medianIncome:"Median income", healthcareEmploymentShare:"Healthcare employment share", dataConfidence:"Data Completeness",
+    validationConfidence:"Validation Confidence",
+    confidenceHelp:"Market Opportunity Score v2.0 is the baseline market-demand estimate. Validation Confidence measures real-world API/commercial support. Historical Confidence measures ALLCPR history. Data Completeness checks public baseline inputs.",
+    operatorDecision:"Operator Decision", siteOpeningDecision:"Site Opening Decision",
+    decision:"Decision", status:"Status", bestNextAction:"Best next action", courseFit:"Course fit",
+    whatThisMeans:"What this means", whyThisFitsCourse:"Why this fits the selected course",
+    detailedScoreBreakdown:"Detailed score breakdown", noMainBlockers:"No main blockers flagged.",
+    mainBlockers:"Main blockers",
+    whyFinalScore:"Why this final score", formulaWeight:"Weight", formulaPoints:"Points",
+    formulaSubtotal:"Weighted subtotal", formulaPenalty:"Competition saturation penalty",
+    readyForScreening:"Ready for screening", strongCandidate:"Strong candidate", needsValidation:"Needs validation",
+    needsFieldTest:"Needs field test", highCompetitionRisk:"High competition risk", reviewRequired:"Review required",
+    commercialValidationBlocker:"commercial validation", competitionSaturationBlocker:"competition saturation",
+    finalSitePriorityScore:"Final Site Priority Score",
+    marketDemandScore:"Market Demand Score", validationEvidenceScore:"Validation Evidence Score",
+    commercialFeasibilityScore:"Commercial Feasibility Score", commercialFeasibility:"Commercial feasibility",
+    competitionRisk:"Competition Risk", sitePriorityDecision:"Site Priority Decision",
+    whyThisDecision:"Why this decision", scoreStatus:"Score status", formulaVersion:"Formula version",
+    yes:"Yes", no:"No", unknown:"unknown", available:"Available", historical:"Historical", enriched:"Enriched", modeled:"Modeled",
+    layerTier:"Layer / tier", selected:"Selected", classes:"Classes", avgStud:"Avg stud.", fillPct:"Fill %", quality:"Quality",
+    proven:"Proven", histConf:"Hist conf.", bestHist:"Best hist.", error:"Error", recommendation:"Recommendation", commercial:"Commercial",
+    remove:"Remove", overlapZips:"Overlap ZIPs", correlationOverall:"Correlation (overall)", falsePositives:"False positives",
+    falseNegatives:"False negatives", agreementSummary:"Agreement summary", modeledVsProvenZips:"Modeled vs proven ZIPs",
+    perMetricCorrelations:"Per-metric correlations", notesCaveats:"Notes & caveats", comparisonLabel:"Comparison", r2:"R²", slope:"slope",
+    modeledLayerNotBuilt:"Modeled layer not built yet.", loadingBoundaries:"Loading ZIP boundary polygons…",
+    boundariesUnavailable:"ZIP boundary data is not available in this build. Use ZIP points or smooth heat.",
+    boundariesNotLoaded:"ZIP boundary data is not loaded yet.",
+    boundariesZoomIn:"Zoom in to load ZIP boundary polygons.",
+    boundariesTooLarge:"ZIP boundary file is too large for browser rendering. Use ZIP points or smooth heat.",
+    boundaryLoaded:"Loaded {count} ZIP boundary polygons.", boundaryError:"ZIP boundary data unavailable: {error}. Use ZIP points or smooth heat.",
+    switchModeledRank:"Switch to Modeled national to load visible ZIP rankings.", noRowsLayer:"No ZIP rows loaded for this layer.",
+    noVisibleScored:"No scored ZIPs are visible at this zoom.", noVisibleExport:"No visible scored ZIPs to export.",
+    noVisibleRowsExport:"No visible ZIP rows to export.", selectZipFirst:"Select a ZIP first.",
+    selectBeforeJson:"Select a ZIP before exporting detail JSON.", noRowsTopExport:"No rows available for top ZIP export.",
+    qaUnavailable:"QA export unavailable: {error}", loadingNational:"Loading national modeled layer…",
+    nationalLoaded:"Modeled national layer: {count} US ZIPs (estimate, {acs}).",
+    nationalLoadedEnriched:"Modeled national layer: {count} US ZIPs (estimate, {acs}). Enriched validation available for priority ZIPs ({enriched} ZIPs).",
+    failedModeled:"Failed to load modeled layer: {error}", historicalLoaded:"Historical layer: {count} ZIPs with real ALLCPR activity.",
+    historicalMapped:"Historical layer: {mapped} mapped ZIPs, {candidates} candidate site(s). Switch to Modeled national for the full US.",
+    enterZip:"Enter a 5-digit ZIP code.", zipNotHistorical:"ZIP {zip} not in historical data. Try the Modeled national layer.",
+    zipNoHistory:"ZIP {zip} has no ALLCPR class history. Switch to Modeled national for its public-data estimate.",
+    zipFoundMissingCentroid:"ZIP {zip} found, but centroid coordinates are missing.", showingHistorical:"Showing ZIP {zip} (historical).",
+    modeledStillLoading:"Modeled layer still loading…", zipNotModeled:"ZIP {zip} not in the modeled national set.",
+    zipNotFoundModeled:"ZIP {zip} not found in the modeled national data.", showingModeled:"Showing ZIP {zip} (modeled estimate).",
+    alreadyComparison:"ZIP {zip} already in comparison.", comparisonFull:"Comparison is full (max {max}). Remove one first.",
+    addedComparison:"Added ZIP {zip} to comparison.", reportNotAvailable:"Report not available.", noData:"No data",
+    failedReport:"Failed to load report: {error}", notRecorded:"Not recorded.", noneListed:"None listed.",
+    bestArea:"Best area", bestCourse:"Best course", areaScore:"Area score", biggestRisk:"Biggest risk", nextAction:"Next action",
+    area:"area", risk:"Risk", historicalScoreNote:"Historical score = real ALLCPR evidence.",
+    modeledScoreNote:"Modeled score = public-data estimate.", smoothHeatNote:"Smooth heat = regional intensity, not exact ZIP boundaries.",
+    zipDetailTruth:"ZIP detail panel = exact ZIP-level evidence.", placesNote:"Google Places is context enrichment only and is not called on page load.",
+    brandPreferenceNote:"AHA-vs-ARC brand preference is not modeled from public data.",
+    opsPanelTitle:"Instructors & Rooms", opsPanelHelp:"Can ALLCPR actually run classes here? Instructor supply + classroom supply on top of demand.",
+    opsFindNewNearby:"Find New Instructors Nearby", opsAllDetails:"All details & scores", opsStaffTools:"Staff tools (imports · outreach · auto-email)",
+    opsExpansionTitle:"Expansion Ops (instructor path · coverage · Manatal)",
+    opsBestPath:"Best instructor path", opsPastInstructor:"Past instructor", opsMatch:"match", opsNoNamed:"No named instructor leads yet — source or import.",
+    opsAhaTitle:"AHA Instructors (live)", opsAhaSearching:"Fetching AHA training centers…",
+    opsAhaNone:"No contactable AHA leads found near this ZIP.",
+    opsAhaDraftAll:"Draft outreach to all", opsAhaDrafting:"Drafting…",
+    opsAhaDrafted:"Queued {queued} AHA draft(s) for approval ({skipped} skipped). Review & approve to send.",
+    opsAhaQueue:"Draft & queue", opsAhaFetchFail:"AHA lookup unavailable: {error}",
+    opsAhaNote:"Live from AHA Atlas. Real registered centers — verify each instructor's current certification before scheduling.",
+    opsSiteCoverage:"Existing site coverage", opsNearestSite:"Nearest site", opsNoCoverage:"No coverage data (add data/manual/allcpr_locations.csv).",
+    opsManatal:"Manatal recruiting", opsManatalDisabled:"Manatal integration disabled. Set MANATAL_ENABLED=1 and credentials in Render.",
+    opsCreateJob:"Create Manatal Job", opsPushTop:"Push Top Leads", opsSyncManatal:"Sync Manatal Status", opsPushLead:"Push to Manatal",
+    opsManatalDryRun:"Dry-run OK (set MANATAL_WRITE_ENABLED=1 to write for real).", opsManatalOk:"Done.", opsManatalSynced:"Synced candidates",
+    opsManatalConfirmLive:"LIVE WRITE — this will create a REAL record in Manatal. Continue?",
+    opsManatalConfirmDry:"Dry run — write is OFF, so this will NOT create a real Manatal record (you'll just see the payload). Continue?",
+    opsManatalCreated:"Created in Manatal ✓ (candidate #{id})", opsManatalError:"Manatal error (HTTP {code}): {message}",
+    opsManatalJobNew:"New position opened (job #{id})", opsManatalJobReused:"Added to existing position (job #{id})",
+    opsWriteTokenPrompt:"Write token (needed for protected actions):",
+    opsLoading:"Loading operating readiness…", opsUnavailable:"Operating readiness unavailable: {error}",
+    opsDemand:"Demand", opsAhaInstructor:"AHA Instructor Readiness", opsArcInstructor:"ARC Instructor Readiness",
+    opsSpaceReadiness:"Shared Space Readiness", opsFeasibility:"Operating Feasibility",
+    opsRecommendedAction:"Recommended Action", opsMissing:"Missing Requirements", opsNextSteps:"Next Steps", opsMoreDetail:"More detail (gaps · risks · next steps)",
+    opsInstructorLeads:"Top Instructor Leads", opsSpaceLeads:"Top Shared-Space Leads",
+    opsGenerateOutreach:"Generate Outreach", opsRefreshLeads:"Refresh Leads", opsCrmStatus:"Status",
+    opsNoLeads:"No leads yet — refresh leads or import ALLCPR data.", opsDraftReady:"Outreach draft (review, personalize, send manually):",
+    opsCopyDraft:"Copy draft", opsCopied:"Draft copied to clipboard.",
+    opsVerifyNote:"Public-source leads are signals only. Nobody is treated as certified until staff verify credentials.",
+    opsConfirmed:"Confirmed", opsNeedsVerification:"Needs Verification", opsSignalOnly:"No Signal / Lead Only",
+    opsStatusSaved:"Lead status updated.", opsStatusFailed:"Could not update lead status: {error}",
+    opsRefreshDone:"Leads refreshed.", opsRefreshFailed:"Refresh failed: {error}",
+    opsChecklist:"Action Checklist", opsNamedInstructors:"Named Instructor Candidates",
+    opsFindInstructors:"Find Instructors Like Our Best",
+    opsFindInstructorsHelp:"Learns from your top instructors' real performance and finds eligible look-alikes. Pick a course:",
+    opsMustHold:"must hold", opsValid:"valid", opsBenchmark:"Top-performer benchmark",
+    opsCredMix:"credential mix", opsBoth:"both", opsScore:"score", opsClassWord:"class",
+    opsActivate:"Activate (already have)", opsBridge:"Bridge / cross-train",
+    opsSourceExternal:"Source externally (eligibility-aware searches)",
+    opsNearArea:"near area", opsNoneYet:"None found yet.",
+    opsScreening:"Equipment", opsAdult:"adult", opsInfant:"infant",
+    opsManikinSets:"manikin sets", opsOk:"ok",
+    opsIndeedPlan:"Indeed posting plan", opsPriority:"priority",
+    opsSponsor:"Sponsor", opsDays:"days", opsSponsorEmail:"Request to",
+    opsInclude:"Include", opsPriorityMarket:"Priority expansion market",
+    opsCompanyTarget:"Company site target",
+    opsLiveSearch:"🔍 Find Real Businesses Nearby (live)",
+    opsLiveSearching:"Searching live sources…", opsLiveSources:"Live sources",
+    opsLocalMarket:"Local Market (real data)", opsRealDemand:"Real student demand (6 mo)",
+    opsStudents:"students", opsClasses:"classes", opsInstructorsWord:"instructors",
+    opsCompetitorSupply:"Competitor classes here", opsProviders:"providers",
+    opsCourse:"Course", opsMedianPrice:"Median", opsPriceRange:"Range",
+    opsUnitEconomics:"Unit Economics (break-even)", opsFixedMonthly:"Fixed cost",
+    opsBreakEvenNote:"students/month to break even at these prices",
+    opsPrice:"Price", opsMargin:"Margin/student", opsBreakEven:"Break-even", opsMkt:"mkt",
+    opsDemandVsBreakEven:"Local demand ≈ {local} students/mo vs {be}/mo needed for {course} — {pct}% of break-even",
+    opsInstructorSignals:"Institutional Signals (where to look)",
+    opsNoNamedInstructors:"No named instructor candidates imported or sourced yet.",
+    opsNamedRooms:"Specific Room Candidates", opsRoomSignals:"Institutional/Space Signals (where to look)",
+    opsNoNamedRooms:"No specific room candidate found yet.",
+    opsSearchQueries:"Generate Search Queries", opsSearchQueriesHelp:"Staff-ready searches — run manually, record findings as leads:",
+    opsImportInstructors:"Import Instructor CSV", opsImportRooms:"Import Room/Location CSV",
+    opsImportInstructorsHelp:"Drop the real roster at data/manual/allcpr_instructors.csv (format: data/manual/allcpr_instructors.example.csv), then Refresh Leads. The real file stays local — it is never committed.",
+    opsImportRoomsHelp:"Drop the real location list at data/manual/allcpr_locations.csv (format: data/manual/allcpr_locations.example.csv), then Refresh Leads. The real file stays local — it is never committed.",
+    opsCityPrompt:"City name for better search queries (optional — leave blank to use the ZIP):",
+    opsStageConfirmed:"Confirmed", opsStageCandidateFound:"Candidate Found", opsStageSignalOnly:"Signal Only",
+    opsStageNoSignal:"No Signal", opsStageBlocked:"Blocked",
+    glanceTitle:"At a glance", gAdvanced:"Show detailed data & scores",
+    gDemand:"Demand", gCompetition:"Competition", gSpace:"Space to rent", gHistory:"ALLCPR track record",
+    gStrong:"Strong", gMedium:"Medium", gWeak:"Weak", gNoData:"No data",
+    gOpen:"Open market", gSome:"Some competition", gCrowded:"Crowded", gUnproven:"Unproven",
+    gCrowdedSub:"Needs a clear reason to pick ALLCPR", gAvailable:"Available now",
+    gChecked:"Checked, options exist", gNotChecked:"Not checked yet",
+    gProven:"We've run classes here", gNew:"New area for ALLCPR",
+    gDemandStrongSub:"Lots of people likely to need CPR/BLS",
+    gDemandMediumSub:"Steady, not huge, demand", gDemandWeakSub:"Few likely students",
+    areaLooksLike:"What this area looks like",
+    plainWhatToDo:"What to do next", opsMarketEconDetail:"Local market & cost breakdown",
+    opsQueueOutreach:"Queue Auto-Email", opsOutreachQueueTitle:"Outreach Queue (auto-email with follow-ups)",
+    opsQueueLoading:"Loading queue…", opsQueued:"Queued for approval.",
+    opsQueueBlocked:"Blocked", opsTouch:"touch", opsNextTouch:"next",
+    opsQueuePending:"Awaiting your approval", opsQueueActive:"Sequences running", opsQueueFinished:"Recently finished",
+    opsQueueEmpty:"Queue is empty — use \"Queue Auto-Email\" on any lead with an email address.",
+    opsQueueCancel:"Remove", opsQueueCancelled:"Removed from queue.",
+    opsApproveAll:"Approve & Send", opsApproveResult:"Sent {sent} · dry-run {dry} · blocked {blocked}",
+    opsRunTick:"Check Replies + Send Follow-ups", opsTickResult:"Replies {replies} · follow-ups sent {fu}",
+    opsEngineLive:"LIVE — approved emails send for real.",
+    opsEngineDryRun:"DRY RUN — nothing actually sends until OUTREACH_SEND_ENABLED + SMTP credentials are set on the server.",
+    opsSendsToday:"Sent today", opsFollowUpsAt:"Follow-ups"
+  },
+  zh: {
+    title:"ALLCPR 选址智能分析", subtitle:"v2.0 · 内部决策支持产品",
+    language:"语言", layer:"图层", map:"地图", view:"视图", heat:"热力", course:"课程",
+    historicalAllcpr:"ALLCPR 历史数据", modeledNational:"全国模型预测", street:"街道", satellite:"卫星",
+    zipPoints:"ZIP 点位", smoothHeat:"平滑热力图", both:"同时显示", zipBoundaries:"ZIP 边界",
+    boundaryOverlay:"ZIP 边界", off:"关", on:"开", preparingHeat:"正在准备热力图…", boundariesOverlayOn:"ZIP 边界叠加层已开启 — 在可用区域按分数着色精确 ZCTA 多边形。",
+    light:"轻", normal:"标准", strong:"强", overall:"总体", search:"搜索", zipPlaceholder:"ZIP，例如 95112",
+    low:"低", medium:"中", high:"高", med:"中", topZips:"当前视图热门 ZIP",
+    moveZoomRank:"移动或缩放地图以排名可见 ZIP。", exportTopViewCsv:"导出当前热门 CSV",
+    exportMapViewCsv:"导出地图视图 CSV", exportTop100Csv:"导出前 100 CSV", exportQaJson:"导出 QA JSON",
+    dragResize:"拖动调整大小", zip:"ZIP", summary:"摘要", compare:"对比", candidates:"候选点", validation:"验证",
+    emptyZipDetail:"选择图层，然后点击地图或搜索 ZIP，查看评分、历史、商业可行性和建议。",
+    executiveSummary:"执行摘要", realHistory:"真实历史", fullExecutiveSummary:"完整执行摘要",
+    noNarrative:"暂无叙述。", beforeLeasingChecklist:"租赁前检查清单", dataSources:"数据来源",
+    zipComparison:"ZIP 对比", upTo5:"（最多 5 个）", exportCsv:"导出 CSV", clearAll:"全部清除",
+    noZipsAdded:"尚未添加 ZIP。打开一个 ZIP，然后点击“加入对比”。", candidateSites:"候选场地",
+    noCandidateSites:"报告中没有候选场地。", modelValidation:"模型验证",
+    loadingModelValidation:"正在加载模型验证…", aboutDataTiers:"关于与数据层级", howToUseIt:"如何使用",
+    dataTiersQuality:"数据层级与质量", methodologyCaveats:"方法与注意事项",
+    overallDemand:"总体需求", overallOpportunity:"总体机会",
+    healthcareBlsDemand:"医疗劳动力（BLS）需求", communityCprDemand:"社区（CPR）需求",
+    demand:"需求", students:"学生数", publicEstimate:"公共数据估算", realEnrollware:"真实 Enrollware 活动",
+    addToComparison:"加入对比", exportZipJson:"导出 ZIP JSON", why:"原因：", nextSteps:"下一步",
+    validationNextSteps:"下一步（租赁前验证）", automatedNextSteps:"自动化下一步",
+    keepLowPriority:"在出现更强自动化信号之前，将此 ZIP 保持为低优先级。",
+    addEnrichmentSignals:"有数据时补充 Places、医疗锚点、社区设施、竞争者或商业信号。",
+    autoUpgradeIfSupported:"如果验证信号改善，系统会自动升级该区域。",
+    monitorWatchlist:"保留在观察名单，并在下一批增强时重新运行。",
+    screenCommercialFit:"仅在自动化需求信号支持后，再筛选商业匹配度。",
+    riskFlags:"风险标记", noneFlagged:"未标记。", noRiskFlags:"没有附加风险标记。",
+    commercialValidation:"商业验证", commercialNotAdded:"尚未添加商业验证。做决定前请检查租金、停车、教室大小和租赁可用性。",
+    spaceAvailable:"有可用空间", validated:"已验证", availableSpaces:"可用空间", rentRange:"租金范围",
+    parking:"停车", classroomFit:"教室匹配", updated:"更新时间", sources:"来源", link:"链接",
+    scoreExplanation:"评分解释", topScoreDrivers:"主要评分驱动", weaknesses:"弱项",
+    recommendedNextAction:"建议下一步", noScoreExplanation:"暂无模型评分解释。",
+    noStrongDrivers:"没有附加强公共数据驱动因素。", noMajorWeaknesses:"没有附加主要模型弱项。",
+    insufficientData:"数据不足", reviewModeledEstimate:"复核模型估算。", reviewHistoricalEvidence:"复核历史证据。",
+    realHistoryAttached:"此 ZIP 有真实 ALLCPR 运营历史。",
+    missingCentroid:"找到 ZIP，但缺少中心点坐标，无法在地图上定位。",
+    modeledCaveat:"模型估算来自 Census 公共数据，不是真实报名历史。课程倾向反映 BLS 劳动力与社区 CPR 需求，不代表 AHA 与 ARC 品牌偏好。",
+    noHistoryAttached:"此 ZIP 没有关联 ALLCPR 历史活动。这只是公共数据估算。",
+    enrichmentData:"增强数据（批量数据集 · Places · 商业）", baselineOnly:"仅基线估算。优先 ZIP 可查看增强验证。",
+    priorityEnrichment:"优先 ZIP 可查看增强验证。",
+    whyThisScore:"此评分原因", rawModeledMetrics:"原始模型指标", rawZipMetrics:"原始 ZIP 指标",
+    provenAllcprDemand:"已验证 ALLCPR 需求", modelAgreement:"模型一致性", courseComparison:"课程对比",
+    scoreMeaning:"含义", scoreSource:"来源", marketOpportunityStrength:"市场机会强度",
+    marketOpportunityScoreV20:"市场机会评分 v2.0", baselineMarketV20:"v2.0 基线市场视图",
+    baselineMarketHelp:"这是基线市场需求估算。开点决策请使用选址优先级 v2.1。",
+    modeledDemandScore:"模型需求评分", realWorldSupport:"真实 API 与商业证据支持",
+    enrichmentSignals:"增强信号", historicalClassConfidence:"ALLCPR 历史课程量置信度",
+    historicalAllcprEnrollware:"ALLCPR / Enrollware 历史数据", baselineCompleteness:"公共基线数据完整度",
+    censusGazetteerInputs:"Census / Gazetteer 基线输入",
+    scoreClarityNote:"市场机会评分 v2.0 衡量该 ZIP 作为市场的强度。开点决策请使用选址优先级结论和 v2.1 最终选址优先级评分。",
+    enrichedThisPriorityZip:"此优先 ZIP 已有增强验证。",
+    baselinePriorityManual:"此 ZIP 当前使用公共数据基线估算。优先 ZIP 或人工复核可获得增强验证。",
+    priorityCoverageSummary:"2,694 个优先 ZIP 已增强；其他 ZIP 使用公共数据基线估算。",
+    requestManualValidation:"请求人工验证",
+    manualValidationHint:"人工验证应通过 --zips 或 --zips-from 有意运行，以避免不必要的 API 花费。",
+    topDrivers:"主要驱动", watchouts:"注意事项", missingEnrichment:"缺少增强验证",
+    competitorSaturation:"竞争者饱和", weakHealthcareEmploymentShare:"医疗就业占比较弱",
+    healthcareCommercialValidation:"医疗 / 商业验证",
+    courseLabel:"课程", classCount:"课程数", avgStudents:"平均学生数", fillRate:"满班率", confidence:"置信度",
+    overallDemandScore:"总体需求评分", courseValue:"值", provenDemandScore:"已验证需求评分",
+    historicalConfidence:"历史置信度", totalStudents:"总学生数", bestHistoricalCourse:"最佳历史课程",
+    courseMix:"课程组合", agreement:"一致性", modelError:"模型误差", calibrationNote:"校准说明",
+    overallOpp:"总体机会", opportunityScore:"市场机会评分 v2.0", selectedTilt:"所选倾向", apiPriority:"API 优先级", apiCandidateScore:"API 候选评分",
+    recommendedForLivePlaces:"建议用于实时 Places", population:"人口", populationDensity:"人口密度（/平方英里）",
+    medianIncome:"收入中位数", healthcareEmploymentShare:"医疗就业占比", dataConfidence:"数据完整度",
+    validationConfidence:"验证置信度",
+    confidenceHelp:"市场机会评分 v2.0 是基线市场需求估算；验证置信度衡量 API / 商业真实支持；历史置信度衡量 ALLCPR 历史；数据完整度检查公共基线输入。",
+    operatorDecision:"运营决策", siteOpeningDecision:"开点决策",
+    decision:"决策", status:"状态", bestNextAction:"最佳下一步", courseFit:"课程匹配",
+    whatThisMeans:"这意味着什么", whyThisFitsCourse:"为什么适合所选课程",
+    detailedScoreBreakdown:"详细评分拆解", noMainBlockers:"未标记主要阻碍。",
+    mainBlockers:"主要阻碍",
+    whyFinalScore:"为什么是这个最终分数", formulaWeight:"权重", formulaPoints:"得分",
+    formulaSubtotal:"加权小计", formulaPenalty:"竞争饱和扣分",
+    readyForScreening:"可进入筛选", strongCandidate:"强候选", needsValidation:"需要验证",
+    needsFieldTest:"需要实地测试", highCompetitionRisk:"高竞争风险", reviewRequired:"需要复核",
+    commercialValidationBlocker:"商业验证", competitionSaturationBlocker:"竞争饱和",
+    finalSitePriorityScore:"最终选址优先级评分",
+    marketDemandScore:"市场需求评分", validationEvidenceScore:"验证证据评分",
+    commercialFeasibilityScore:"商业可行性评分", commercialFeasibility:"商业可行性",
+    competitionRisk:"竞争风险", sitePriorityDecision:"选址优先级结论",
+    whyThisDecision:"结论原因", scoreStatus:"评分状态", formulaVersion:"公式版本",
+    yes:"是", no:"否", unknown:"未知", available:"可用", historical:"历史", enriched:"已增强", modeled:"模型",
+    layerTier:"图层 / 层级", selected:"所选", classes:"课程数", avgStud:"平均学生", fillPct:"满班 %", quality:"质量",
+    proven:"已验证", histConf:"历史置信", bestHist:"最佳历史", error:"误差", recommendation:"建议", commercial:"商业",
+    remove:"移除", overlapZips:"重叠 ZIP", correlationOverall:"相关性（总体）", falsePositives:"假阳性",
+    falseNegatives:"假阴性", agreementSummary:"一致性摘要", modeledVsProvenZips:"模型 vs 已验证 ZIP",
+    perMetricCorrelations:"各指标相关性", notesCaveats:"说明与注意事项", comparisonLabel:"对比", r2:"R²", slope:"斜率",
+    modeledLayerNotBuilt:"模型图层尚未构建。", loadingBoundaries:"正在加载 ZIP 边界多边形…",
+    boundariesUnavailable:"此构建中没有 ZIP 边界数据。请使用 ZIP 点位或平滑热力图。",
+    boundariesNotLoaded:"ZIP 边界数据尚未加载。",
+    boundariesZoomIn:"放大地图以加载 ZIP 边界多边形。",
+    boundariesTooLarge:"ZIP 边界文件过大，无法在浏览器渲染。请使用 ZIP 点位或平滑热力图。",
+    boundaryLoaded:"已加载 {count} 个 ZIP 边界多边形。", boundaryError:"ZIP 边界数据不可用：{error}。请使用 ZIP 点位或平滑热力图。",
+    switchModeledRank:"切换到全国模型预测以加载可见 ZIP 排名。", noRowsLayer:"此图层没有加载 ZIP 行。",
+    noVisibleScored:"当前缩放下没有可见的已评分 ZIP。", noVisibleExport:"没有可导出的可见已评分 ZIP。",
+    noVisibleRowsExport:"没有可导出的可见 ZIP 行。", selectZipFirst:"请先选择一个 ZIP。",
+    selectBeforeJson:"导出详情 JSON 前请先选择 ZIP。", noRowsTopExport:"没有可用于热门 ZIP 导出的行。",
+    qaUnavailable:"QA 导出不可用：{error}", loadingNational:"正在加载全国模型图层…",
+    nationalLoaded:"全国模型图层：{count} 个美国 ZIP（估算，{acs}）。",
+    nationalLoadedEnriched:"全国模型图层：{count} 个美国 ZIP（估算，{acs}）。优先 ZIP 可查看增强验证（{enriched} 个 ZIP）。",
+    failedModeled:"加载模型图层失败：{error}", historicalLoaded:"历史图层：{count} 个有真实 ALLCPR 活动的 ZIP。",
+    historicalMapped:"历史图层：{mapped} 个已映射 ZIP，{candidates} 个候选场地。切换到全国模型预测查看全美。",
+    enterZip:"请输入 5 位 ZIP 代码。", zipNotHistorical:"ZIP {zip} 不在历史数据中。请尝试全国模型预测图层。",
+    zipNoHistory:"ZIP {zip} 没有 ALLCPR 课程历史。切换到全国模型预测查看公共数据估算。",
+    zipFoundMissingCentroid:"找到 ZIP {zip}，但缺少中心点坐标。", showingHistorical:"正在显示 ZIP {zip}（历史）。",
+    modeledStillLoading:"模型图层仍在加载…", zipNotModeled:"ZIP {zip} 不在全国模型集合中。",
+    zipNotFoundModeled:"ZIP {zip} 未在全国模型数据中找到。", showingModeled:"正在显示 ZIP {zip}（模型估算）。",
+    alreadyComparison:"ZIP {zip} 已在对比中。", comparisonFull:"对比已满（最多 {max} 个）。请先移除一个。",
+    addedComparison:"已将 ZIP {zip} 加入对比。", reportNotAvailable:"报告不可用。", noData:"无数据",
+    failedReport:"加载报告失败：{error}", notRecorded:"未记录。", noneListed:"未列出。",
+    bestArea:"最佳区域", bestCourse:"最佳课程", areaScore:"区域评分", biggestRisk:"最大风险", nextAction:"下一步",
+    area:"区域", risk:"风险", historicalScoreNote:"历史评分 = 真实 ALLCPR 证据。",
+    modeledScoreNote:"模型评分 = 公共数据估算。", smoothHeatNote:"平滑热力图 = 区域强度，不是精确 ZIP 边界。",
+    zipDetailTruth:"ZIP 详情面板 = 精确 ZIP 级证据。", placesNote:"Google Places 只是背景增强，页面加载时不会调用。",
+    brandPreferenceNote:"公共数据不建模 AHA 与 ARC 的品牌偏好。",
+    glanceTitle:"一眼概览", gAdvanced:"显示详细数据与评分",
+    gDemand:"需求", gCompetition:"竞争", gSpace:"可租教室", gHistory:"ALLCPR 过往记录",
+    gStrong:"强", gMedium:"中等", gWeak:"弱", gNoData:"暂无数据",
+    gOpen:"市场空白", gSome:"有一定竞争", gCrowded:"竞争激烈", gUnproven:"未验证",
+    gCrowdedSub:"需要明确差异化理由", gAvailable:"现有可租",
+    gChecked:"已核查，有选择", gNotChecked:"尚未核查",
+    gProven:"我们在此开过课", gNew:"ALLCPR 新区域",
+    gDemandStrongSub:"大量潜在 CPR/BLS 学员",
+    gDemandMediumSub:"需求稳定但不大", gDemandWeakSub:"潜在学员较少",
+    areaLooksLike:"该区域概况",
+    plainWhatToDo:"下一步", opsMarketEconDetail:"本地市场与成本明细",
+    opsQueueOutreach:"加入自动邮件队列", opsOutreachQueueTitle:"外联队列（自动邮件+自动跟进）",
+    opsQueueLoading:"正在加载队列…", opsQueued:"已加入队列，等待批准。",
+    opsQueueBlocked:"已拦截", opsTouch:"第", opsNextTouch:"下次",
+    opsQueuePending:"等待您批准", opsQueueActive:"进行中的序列", opsQueueFinished:"最近完成",
+    opsQueueEmpty:"队列为空——在任何有邮箱的线索上点击\"加入自动邮件队列\"。",
+    opsQueueCancel:"移除", opsQueueCancelled:"已从队列移除。",
+    opsApproveAll:"批准并发送", opsApproveResult:"已发送 {sent} · 演练 {dry} · 拦截 {blocked}",
+    opsRunTick:"检查回复并发送跟进", opsTickResult:"回复 {replies} · 已发送跟进 {fu}",
+    opsEngineLive:"实发模式——批准的邮件会真实发送。",
+    opsEngineDryRun:"演练模式——在服务器设置 OUTREACH_SEND_ENABLED 和 SMTP 凭据之前不会真正发送任何邮件。",
+    opsSendsToday:"今日已发送", opsFollowUpsAt:"跟进时间",
+    opsPanelTitle:"讲师与教室", opsPanelHelp:"ALLCPR 真的能在这里开课吗？在需求之上叠加讲师供给与教室供给。",
+    opsFindNewNearby:"查找附近新讲师", opsAllDetails:"全部明细与评分", opsStaffTools:"员工工具（导入 · 外联 · 自动邮件）",
+    opsExpansionTitle:"扩张运营（讲师路径 · 覆盖 · Manatal）",
+    opsBestPath:"最佳讲师路径", opsPastInstructor:"曾任讲师", opsMatch:"匹配", opsNoNamed:"暂无具名讲师线索——请采集或导入。",
+    opsAhaTitle:"AHA 讲师（实时）", opsAhaSearching:"正在获取 AHA 培训中心…",
+    opsAhaNone:"该邮编附近未找到可联系的 AHA 线索。",
+    opsAhaDraftAll:"为全部生成外联草稿", opsAhaDrafting:"生成中…",
+    opsAhaDrafted:"已将 {queued} 条 AHA 草稿加入审批队列（跳过 {skipped}）。审核批准后发送。",
+    opsAhaQueue:"生成并入队", opsAhaFetchFail:"AHA 查询不可用：{error}",
+    opsAhaNote:"数据实时来自 AHA Atlas。均为真实注册中心——排课前请核实每位讲师的现行认证。",
+    opsSiteCoverage:"现有站点覆盖", opsNearestSite:"最近站点", opsNoCoverage:"暂无覆盖数据（添加 data/manual/allcpr_locations.csv）。",
+    opsManatal:"Manatal 招聘", opsManatalDisabled:"Manatal 集成已关闭。请在 Render 设置 MANATAL_ENABLED=1 及凭据。",
+    opsCreateJob:"创建 Manatal 职位", opsPushTop:"推送优质线索", opsSyncManatal:"同步 Manatal 状态", opsPushLead:"推送到 Manatal",
+    opsManatalDryRun:"演练成功（设置 MANATAL_WRITE_ENABLED=1 才会真实写入）。", opsManatalOk:"已完成。", opsManatalSynced:"已同步候选人",
+    opsManatalConfirmLive:"实写模式——将在 Manatal 中创建真实记录。继续？",
+    opsManatalConfirmDry:"演练模式——写入已关闭，不会创建真实 Manatal 记录（只会显示要发送的内容）。继续？",
+    opsManatalCreated:"已在 Manatal 创建 ✓（候选人 #{id}）", opsManatalError:"Manatal 错误（HTTP {code}）：{message}",
+    opsManatalJobNew:"已新开职位（Job #{id}）", opsManatalJobReused:"已加入现有职位（Job #{id}）",
+    opsWriteTokenPrompt:"写入令牌（受保护操作需要）：",
+    opsLoading:"正在加载运营就绪度…", opsUnavailable:"运营就绪度不可用：{error}",
+    opsDemand:"需求", opsAhaInstructor:"AHA 讲师就绪度", opsArcInstructor:"ARC 讲师就绪度",
+    opsSpaceReadiness:"共享教室就绪度", opsFeasibility:"运营可行性",
+    opsRecommendedAction:"建议行动", opsMissing:"缺失条件", opsNextSteps:"下一步", opsMoreDetail:"更多明细（缺口 · 风险 · 下一步）",
+    opsInstructorLeads:"重点讲师线索", opsSpaceLeads:"重点教室线索",
+    opsGenerateOutreach:"生成联络草稿", opsRefreshLeads:"刷新线索", opsCrmStatus:"状态",
+    opsNoLeads:"暂无线索 — 请刷新线索或导入 ALLCPR 数据。", opsDraftReady:"联络草稿（请人工审核、个性化后手动发送）：",
+    opsCopyDraft:"复制草稿", opsCopied:"草稿已复制到剪贴板。",
+    opsVerifyNote:"公开来源线索仅为信号。未经员工核实证书前，不视任何人已认证。",
+    opsConfirmed:"已确认", opsNeedsVerification:"待核实", opsSignalOnly:"仅信号 / 线索",
+    opsStatusSaved:"线索状态已更新。", opsStatusFailed:"无法更新线索状态：{error}",
+    opsRefreshDone:"线索已刷新。", opsRefreshFailed:"刷新失败：{error}",
+    opsChecklist:"行动清单", opsNamedInstructors:"具名讲师候选人",
+    opsFindInstructors:"寻找与顶尖讲师相似的人选",
+    opsFindInstructorsHelp:"根据顶尖讲师的真实表现，寻找符合资质的相似人选。请选择课程：",
+    opsMustHold:"须持有", opsValid:"有效期", opsBenchmark:"顶尖讲师基准",
+    opsCredMix:"资质分布", opsBoth:"两者", opsScore:"评分", opsClassWord:"班",
+    opsActivate:"激活（现有讲师）", opsBridge:"过渡/交叉培训",
+    opsSourceExternal:"外部寻源（按资质的搜索词）",
+    opsNearArea:"邻近区域", opsNoneYet:"暂无。",
+    opsScreening:"设备", opsAdult:"成人", opsInfant:"婴儿",
+    opsManikinSets:"套模型", opsOk:"可接受",
+    opsIndeedPlan:"Indeed 发布方案", opsPriority:"优先级",
+    opsSponsor:"赞助", opsDays:"天", opsSponsorEmail:"申请发至", opsInclude:"需包含",
+    opsPriorityMarket:"重点拓展市场", opsCompanyTarget:"公司分点目标",
+    opsLiveSearch:"🔍 查找附近真实机构（实时）",
+    opsLiveSearching:"正在实时搜索…", opsLiveSources:"实时来源",
+    opsLocalMarket:"本地市场（真实数据）", opsRealDemand:"真实学员需求（6个月）",
+    opsStudents:"名学员", opsClasses:"节课", opsInstructorsWord:"名讲师",
+    opsCompetitorSupply:"此处竞品课程", opsProviders:"家机构",
+    opsCourse:"课程", opsMedianPrice:"中位价", opsPriceRange:"区间",
+    opsUnitEconomics:"单位经济（盈亏平衡）", opsFixedMonthly:"固定成本",
+    opsBreakEvenNote:"按此价格每月需招生数达到盈亏平衡",
+    opsPrice:"价格", opsMargin:"每人毛利", opsBreakEven:"盈亏平衡", opsMkt:"市场",
+    opsDemandVsBreakEven:"本地需求约 {local} 人/月，而 {course} 需 {be} 人/月 — 为盈亏平衡的 {pct}%",
+    opsInstructorSignals:"机构信号（可去哪里找）",
+    opsNoNamedInstructors:"尚未导入或搜到具名讲师候选人。",
+    opsNamedRooms:"具体教室候选", opsRoomSignals:"机构/场地信号（可去哪里找）",
+    opsNoNamedRooms:"尚未找到具体教室候选。",
+    opsSearchQueries:"生成搜索词", opsSearchQueriesHelp:"供员工手动执行的搜索词 — 找到后录入为线索：",
+    opsImportInstructors:"导入讲师 CSV", opsImportRooms:"导入教室/地点 CSV",
+    opsImportInstructorsHelp:"将真实讲师名单放到 data/manual/allcpr_instructors.csv（格式见 data/manual/allcpr_instructors.example.csv），然后刷新线索。真实文件仅保存在本地，不会被提交。",
+    opsImportRoomsHelp:"将真实地点清单放到 data/manual/allcpr_locations.csv（格式见 data/manual/allcpr_locations.example.csv），然后刷新线索。真实文件仅保存在本地，不会被提交。",
+    opsCityPrompt:"城市名（可选，留空则使用邮编）：",
+    opsStageConfirmed:"已确认", opsStageCandidateFound:"发现候选", opsStageSignalOnly:"仅信号",
+    opsStageNoSignal:"无信号", opsStageBlocked:"受阻"
+  }
+};
+const I18N_KEY = "allcpr_dashboard_lang";
+const VIZ_KEY = "allcpr_dashboard_viz";
+const BOUNDARY_KEY = "allcpr_dashboard_boundaries";
+let currentLang = localStorage.getItem(I18N_KEY) === "zh" ? "zh" : "en";
+function t(key, vars={}){
+  let value = (I18N[currentLang] && I18N[currentLang][key]) || I18N.en[key] || key;
+  for (const [k,v] of Object.entries(vars)) value = value.replaceAll(`{${k}}`, v);
+  return value;
+}
+const UI_ZH = {
+  "Overall":"总体", "Overall opportunity":"总体机会", "Healthcare-workforce (BLS) demand":"医疗劳动力（BLS）需求",
+  "Community (CPR) demand":"社区（CPR）需求", "Hospitals":"医院", "Urgent care":"急诊护理",
+  "EMS / fire stations":"EMS / 消防站", "Healthcare facilities":"医疗设施", "Nearest hospital (mi)":"最近医院（英里）",
+  "Healthcare providers":"医疗服务提供者", "Nurses":"护士", "Physicians":"医生", "Clinic organizations":"诊所机构",
+  "Providers / 10k pop":"每万人服务提供者", "Colleges":"高校", "Nursing schools":"护理学校",
+  "Health-program schools":"健康项目学校", "Student enrollment":"学生入学数", "Childcare centers":"托育中心",
+  "Schools":"学校", "Community facilities":"社区设施", "Parking access (proxy)":"停车便利性（代理）",
+  "Commercial access (proxy)":"商业可达性（代理）", "Competitors":"竞争者", "Competitor density":"竞争者密度",
+  "Avg competitor rating":"竞争者平均评分", "Competitor classes scheduled":"竞争者排课数",
+  "Drive-time access":"驾车可达性", "Parking score":"停车评分", "Commercial space available":"商业空间可用",
+  "Estimated rent":"估算租金", "Rent source":"租金来源", "Strong test area":"强测试区域",
+  "Possible opportunity":"可能机会", "Keep watching":"继续观察", "Lower priority":"较低优先级",
+  "Strong opportunity":"强机会", "Promising opportunity":"有潜力机会",
+  "Validation-supported opportunity":"验证支持的机会", "Watchlist":"观察名单",
+  "Low priority":"低优先级", "Insufficient data":"数据不足",
+  "Commercially promising — validate in person":"商业前景较好，请现场验证", "Check rent":"检查租金",
+  "Check parking":"检查停车", "Check classroom availability":"检查教室可用性",
+  "Check competitor schedule/pricing":"检查竞争者排课/价格", "Run a small demand test (calls / landing page)":"运行小规模需求测试（电话 / 落地页）",
+  "Validate in person":"现场验证", "High":"高", "Med":"中", "Low":"低", "Modeled":"模型",
+  "Enriched":"已增强", "Historical":"历史", "Available":"可用", "Validated":"已验证",
+  "Real history":"真实历史", "Modeled · baseline":"模型 · 基线", "Commercial validated":"商业已验证",
+  "Space available":"有可用空间", "Yes":"是", "No":"否", "unknown":"未知",
+  "Review modeled estimate.":"复核模型估算。", "Review historical evidence.":"复核历史证据。",
+  "None flagged.":"未标记。", "No risk flags attached.":"没有附加风险标记。",
+  "ZIP":"ZIP", "Layer / tier":"图层 / 层级", "Selected":"所选", "Classes":"课程数",
+  "Avg stud.":"平均学生", "Fill %":"满班 %", "Quality":"质量", "Proven":"已验证",
+  "Hist conf.":"历史置信", "Best hist.":"最佳历史", "Agreement":"一致性", "Error":"误差",
+  "Recommendation":"建议", "Commercial":"商业", "Overlap ZIPs":"重叠 ZIP", "Correlation (overall)":"相关性（总体）",
+  "False positives":"假阳性", "False negatives":"假阴性", "Comparison":"对比", "slope":"斜率",
+  "Modeled":"模型", "Proven":"已验证", "Class count":"课程数", "Average students":"平均学生数",
+  "Fill rate":"满班率", "Confidence":"置信度", "Overall demand score":"总体需求评分",
+  "Proven demand score":"已验证需求评分", "Historical confidence":"历史置信度", "Total students":"总学生数",
+  "Best historical course":"最佳历史课程", "Course mix":"课程组合", "Model error":"模型误差",
+  "Calibration note":"校准说明", "API priority":"API 优先级", "API candidate score":"API 候选评分",
+  "Recommended for live Places":"建议用于实时 Places", "Population":"人口", "Population density (/sq mi)":"人口密度（/平方英里）",
+  "Median income":"收入中位数", "Healthcare employment share":"医疗就业占比", "Data confidence":"数据完整度",
+  "Data completeness":"数据完整度", "Validation confidence":"验证置信度",
+  "Recommended next action":"建议下一步", "Available spaces":"可用空间", "Rent range":"租金范围",
+  "Parking":"停车", "Classroom fit":"教室匹配", "Updated":"更新时间", "Sources":"来源",
+  "Best area":"最佳区域", "Best course":"最佳课程", "Area score":"区域评分", "Biggest risk":"最大风险",
+  "Next action":"下一步"
+};
+function ui(text){ return currentLang === "zh" ? (UI_ZH[text] || text) : text; }
+function courseLabel(mode){ return mode === "overall" ? t("overall") : COURSE_LABEL[mode]; }
+function modeledTiltLabel(mode){
+  if (mode === "overall") return t("overallOpportunity");
+  if (mode === "arc_cpr") return t("communityCprDemand");
+  return t("healthcareBlsDemand");
+}
+function applyTranslations(){
+  document.documentElement.lang = currentLang === "zh" ? "zh-Hans" : "en";
+  document.title = t("title");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{ el.placeholder = t(el.dataset.i18nPlaceholder); });
+  document.querySelectorAll("[data-i18n-title]").forEach(el=>{ el.title = t(el.dataset.i18nTitle); });
+  document.querySelectorAll("#lang-seg button").forEach(b=>b.classList.toggle("active", b.dataset.lang===currentLang));
+}
+function setLanguage(lang){
+  currentLang = lang === "zh" ? "zh" : "en";
+  localStorage.setItem(I18N_KEY, currentLang);
+  applyTranslations();
+  updateLegend();
+  renderTopZipsInView();
+  renderComparison();
+  if (S.report) renderSummary(S.report);
+  if (S.backtest) renderBacktest(S.backtest);
+  if (S.selected){
+    const row = S.selected.layer==="modeled" ? modeledByZip(S.selected.zip) : histByZip(S.selected.zip);
+    if (row) S.selected.layer==="modeled" ? renderModeledDetail(row) : renderHistDetail(row);
+  }
+}
+const COURSE_LABEL = { overall:"Overall", aha_bls:"AHA BLS", arc_bls:"ARC BLS", arc_cpr:"ARC CPR" };
+const MODELED_FIELD = { overall:"overall", aha_bls:"bls_demand", arc_bls:"bls_demand", arc_cpr:"cpr_demand" };
+const MODELED_TILT_LABEL = { overall:"Overall opportunity", aha_bls:"Healthcare-workforce (BLS) demand",
+                             arc_bls:"Healthcare-workforce (BLS) demand", arc_cpr:"Community (CPR) demand" };
+const ENRICH_FIELDS = [
+  // Bulk public datasets (HIFLD / NPI / IPEDS / OSM)
+  ["hospital_count","Hospitals",v=>v],["urgent_care_count","Urgent care",v=>v],
+  ["ems_fire_count","EMS / fire stations",v=>v],["healthcare_facility_count","Healthcare facilities",v=>v],
+  ["nearest_hospital_miles","Nearest hospital (mi)",v=>v],
+  ["healthcare_provider_count","Healthcare providers",v=>Number(v).toLocaleString()],
+  ["nurse_count","Nurses",v=>Number(v).toLocaleString()],["physician_count","Physicians",v=>Number(v).toLocaleString()],
+  ["clinic_provider_count","Clinic organizations",v=>v],["provider_density_per_10k_pop","Providers / 10k pop",v=>v],
+  ["college_count","Colleges",v=>v],["nursing_school_count","Nursing schools",v=>v],
+  ["health_program_school_count","Health-program schools",v=>v],
+  ["student_enrollment_count","Student enrollment",v=>Number(v).toLocaleString()],
+  ["childcare_count","Childcare centers",v=>v],["school_count","Schools",v=>v],
+  ["community_facility_count","Community facilities",v=>v],
+  ["parking_proxy_score","Parking access (proxy)",v=>v],["commercial_access_proxy_score","Commercial access (proxy)",v=>v],
+  // Optional Google Places / competitor / commercial fields
+  ["competitor_count","Competitors",v=>v],["competitor_density","Competitor density",v=>v],
+  ["avg_competitor_rating","Avg competitor rating",v=>v],["competitor_schedule_count","Competitor classes scheduled",v=>v],
+  ["drive_time_access_score","Drive-time access",v=>v],["parking_score","Parking score",v=>v],
+  ["commercial_space_available","Commercial space available",v=>String(v)],
+  ["estimated_rent","Estimated rent",v=>"$"+Number(v).toLocaleString()],["rent_source","Rent source",v=>v],
+];
+const MAX_COMPARE = 5;
+const HEAT_GRADIENT = {0.10:"#2f3bff",0.30:"#25a7ff",0.50:"#28d17c",0.70:"#ffe66d",0.90:"#ff9b32",1.00:"#ff3b30"};
+const HEAT_INTENSITY = {
+  light:  { radius:33, blur:33, minOpacity:.24, opacity:.56 },
+  normal: { radius:36, blur:29, minOpacity:.32, opacity:.72 },
+  strong: { radius:42, blur:26, minOpacity:.40, opacity:.88 },
+};
+
+const S = {
+  layer:"historical", mode:"overall", vizMode:"both", boundariesOn:false, heatIntensity:"normal", map:null,
+  baseLayers:{}, currentBase:"street",
+  report:null, zipRows:[], candidates:[], histMaxCache:{}, heatCache:{},
+  national:null, nationalRows:[], nationalIndex:null, nationalLoaded:false, nationalLoading:false,
+  modeledDetails:{},
+  backtest:null, backtestLoaded:false,
+  histMarkers:{}, candidateMarkers:[], heatLayer:null, modeledPointLayer:null, selMarker:null,
+  zctaGeojson:null, zctaBoundaryLayer:null, zctaLoading:false, zctaUnavailable:false, zctaCache:{}, zctaBoundaryTimer:null,
+  identifyMarker:null, reverseCache:{}, identifySeq:0,
+  selected:null, comparison:[],
+};
+const $ = id => document.getElementById(id);
+let viewportTopTimer = null;
+const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+const fmt = v => { const n = Number(v); return Number.isFinite(n) ? Math.round(n*10)/10 : "—"; };
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const getCss = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function setStatus(m){ $("status").textContent = m || ""; }
+function scheduleTopZipsRender(){
+  clearTimeout(viewportTopTimer);
+  viewportTopTimer = setTimeout(renderTopZipsInView, 140);
+}
+
+// ---------- Decision logic (mirrors app/scoring/decision.py) ----------
+const DEC = { STRONG:"Strong test area", POSSIBLE:"Possible opportunity", WATCHING:"Keep watching",
+              LOWER:"Lower priority", COMMERCIAL:"Commercially promising — validate in person" };
+const NEXT_STEPS = ["Check rent","Check parking","Check classroom availability",
+  "Check competitor schedule/pricing","Run a small demand test (calls / landing page)","Validate in person"];
+function commercialReady(c){ return !!(c && c.commercial_validated && c.commercial_ready); }
+function decideJS(layer, overall, cnorm, dataConf, commercial, enrichmentTier, calibration=null){
+  const score = overall||0, cn = cnorm||0, sHigh = score>=60, sMid = score>=40, cHigh = cn>=0.6;
+  let label, reason; const risk = [];
+  if (layer === "historical"){
+    if (sHigh && cHigh){ label=DEC.STRONG; reason="Strong demand score and real course activity for this course."; }
+    else if (sHigh){ label=DEC.POSSIBLE; reason="Solid overall demand, but limited historical activity for this course."; }
+    else if (cHigh){ label=DEC.WATCHING; reason="Lower overall score, yet a real historical niche exists for this course — review the model."; }
+    else { label=DEC.LOWER; reason="Both the demand score and historical activity are low."; }
+  } else {
+    if (sHigh && cHigh){ label=DEC.STRONG; reason="High modeled opportunity and strong demand tilt — a public-data estimate that needs a field test."; }
+    else if (sMid){ label=DEC.POSSIBLE; reason="Moderate modeled opportunity — worth a demand test before committing."; }
+    else { label=DEC.LOWER; reason="Low modeled opportunity for this ZIP."; }
+    risk.push("Modeled estimate — not real enrollment; validate.");
+    if (enrichmentTier && label===DEC.STRONG && !commercialReady(commercial))
+      reason += " Enrichment present but no validated, available commercial space yet — test carefully.";
+  }
+  const agreement = calibration && calibration.model_agreement;
+  if (agreement && agreement !== "—"){
+    if (agreement === "model_agrees_high"){ label=DEC.STRONG; reason="High modeled demand and high proven ALLCPR demand agree."; }
+    else if (agreement === "model_overpredicts" || agreement === "test_carefully"){ label=DEC.POSSIBLE; reason="Modeled demand is stronger than proven ALLCPR demand; test carefully."; }
+    else if (agreement === "model_underpredicts" || agreement === "hidden_opportunity"){ label=DEC.WATCHING; reason="Proven ALLCPR demand is stronger than the public model suggests; keep this on the automated watchlist."; }
+    else if (agreement === "model_agrees_low"){ label=DEC.LOWER; reason="Modeled demand and proven ALLCPR demand both look weak."; }
+    else if (agreement === "insufficient_history"){ risk.push("Historical sample is small — treat calibration as directional only."); }
+  }
+  if (label===DEC.STRONG && commercialReady(commercial)){
+    label = DEC.COMMERCIAL;
+    reason += " A validated, available commercial space with parking and classroom fit exists — worth an in-person visit.";
+  }
+  if (["missing","partial","Low","None"].includes(dataConf)) risk.push("Low data confidence — interpret cautiously.");
+  if (!commercialReady(commercial)) risk.push("Commercial space not validated (rent/parking/classroom/availability unknown).");
+  return { label, reason, nextSteps: NEXT_STEPS.slice(), risk };
+}
+
+// ---------- Historical heat ----------
+function histValue(row, mode){
+  if (mode === "overall") return num(row.demand_score);
+  const s = row[mode+"_students"]; if (s != null && s !== 0) return num(s);
+  const p = row[mode+"_people"]; if (p != null && p !== 0) return num(p);
+  const cs = row.course_scores || {}; return cs[mode] != null ? num(cs[mode]) : 0;
+}
+function histMax(mode){ if (S.histMaxCache[mode]!=null) return S.histMaxCache[mode];
+  let m=0; for (const r of S.zipRows) m=Math.max(m,histValue(r,mode)); return (S.histMaxCache[mode]=m); }
+function histNorm(row, mode){ const m=histMax(mode); return m<=0?0:histValue(row,mode)/m; }
+function heatColor(n){ return n>=.66?getCss("--high"):n>=.33?getCss("--mid"):getCss("--low"); }
+function modeledScore(row){ return num(row[modeledField()]); }
+function modeledNorm(row){ return Math.max(0, Math.min(1, modeledScore(row)/100)); }
+function wantsHeat(){ return S.vizMode==="heat" || S.vizMode==="both"; }
+function wantsPoints(){ return S.vizMode==="points" || S.vizMode==="both"; }
+function wantsBoundaries(){ return !!S.boundariesOn; }
+// Heat point arrays depend only on layer + course/score field (not heat strength,
+// which only changes radius/opacity). Cache them so toggling views or strength,
+// or re-rendering the boundary overlay, never recomputes 34k modeled rows.
+function derivedHeatPoints(){
+  const key = S.layer + "|" + S.mode;
+  if (S.heatCache[key]) return S.heatCache[key];
+  const pts = [];
+  if (S.layer === "modeled"){
+    const field = modeledField();
+    for (const r of S.nationalRows){ const v=num(r[field]); if (v>0 && r.lat!=null && r.lng!=null) pts.push([r.lat,r.lng,v/100]); }
+  } else {
+    for (const row of S.zipRows){ if (row.lat==null||row.lng==null) continue; const n=histNorm(row,S.mode); if (n>0) pts.push([row.lat,row.lng,n]); }
+  }
+  S.heatCache[key] = pts;
+  return pts;
+}
+function setModeledStatus(){
+  if (!S.nationalLoaded) return;
+  const acsLabel = (S.national && (S.national.acs_label || (S.national.acs_vintage ? `ACS ${S.national.acs_vintage} 5-year` : "ACS"))) || "ACS";
+  const enriched = S.national && num(S.national.enriched_zip_count);
+  if (enriched > 0) setStatus(t("nationalLoadedEnriched", {count:S.nationalRows.length.toLocaleString(), acs:acsLabel, enriched:enriched.toLocaleString()}));
+  else setStatus(t("nationalLoaded", {count:S.nationalRows.length.toLocaleString(), acs:acsLabel}));
+}
+function heatOptions(){
+  const preset = HEAT_INTENSITY[S.heatIntensity] || HEAT_INTENSITY.normal;
+  return { radius:preset.radius, blur:preset.blur, maxZoom:11,
+    minOpacity:preset.minOpacity, gradient:HEAT_GRADIENT };
+}
+function heatOpacity(){
+  const preset = HEAT_INTENSITY[S.heatIntensity] || HEAT_INTENSITY.normal;
+  // Opacity is CONSTANT across zoom levels so the same score always reads at the
+  // same intensity — zooming in makes ZIPs easier to inspect, never "weaker",
+  // and the legend stays truthful. In "both" mode keep a small fixed reduction
+  // so ZIP points remain legible on top of the heat (not zoom-dependent).
+  return S.vizMode==="both" ? +(preset.opacity * 0.9).toFixed(3) : preset.opacity;
+}
+function applyHeatOpacity(){
+  if (S.heatLayer && S.heatLayer._canvas) S.heatLayer._canvas.style.opacity = heatOpacity();
+}
+
+// ---------- Map ----------
+function initMap(){
+  S.map = L.map("map",{zoomControl:true, preferCanvas:true}).setView([39.5,-98.35],4);
+  S.baseLayers.street = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"&copy; OpenStreetMap"});
+  S.baseLayers.satellite = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Tiles &copy; Esri"});
+  S.baseLayers.street.addTo(S.map);
+  S.map.on("click", onMapClick);
+  S.map.on("zoomend moveend", onViewportChanged);
+  // Full-screen fixed map needs a size recompute after layout settles.
+  setTimeout(() => S.map.invalidateSize(), 200);
+  window.addEventListener("resize", () => S.map.invalidateSize());
+}
+let modeledPointTimer = null;
+function scheduleModeledPointRefresh(){
+  clearTimeout(modeledPointTimer);
+  modeledPointTimer = setTimeout(refreshModeledPointLayer, 120);
+}
+function onViewportChanged(){
+  // Boundaries are an independent overlay: keep points/top-zips live AND, when the
+  // overlay is on, re-fetch boundary polygons for the new viewport.
+  scheduleModeledPointRefresh();
+  scheduleTopZipsRender();
+  if (wantsBoundaries()) scheduleBoundaryRender();
+}
+function setBaseMap(kind){
+  if (!S.baseLayers[kind] || kind===S.currentBase) return;
+  if (S.baseLayers[S.currentBase]) S.map.removeLayer(S.baseLayers[S.currentBase]);
+  S.baseLayers[kind].addTo(S.map); S.currentBase=kind;
+  for (const b of $("basemap-seg").querySelectorAll("button")) b.classList.toggle("active", b.dataset.basemap===kind);
+}
+function setVizMode(mode){
+  S.vizMode=mode;
+  try { localStorage.setItem(VIZ_KEY, mode); } catch(e){}
+  for (const b of $("viz-seg").querySelectorAll("button")) b.classList.toggle("active", b.dataset.viz===mode);
+  if (S.layer==="modeled") drawModeled(); else drawHistorical();
+  updateLegend();
+}
+function setBoundaries(on){
+  S.boundariesOn = !!on;
+  try { localStorage.setItem(BOUNDARY_KEY, S.boundariesOn ? "1" : "0"); } catch(e){}
+  for (const b of $("boundary-seg").querySelectorAll("button"))
+    b.classList.toggle("active", (b.dataset.boundary==="on") === S.boundariesOn);
+  if (S.boundariesOn){
+    scheduleBoundaryRender();
+  } else {
+    clearBoundaries();
+    S.zctaUnavailable = false;
+    if (S.layer==="modeled") setModeledStatus();
+  }
+  updateLegend();
+}
+function setHeatIntensity(level){
+  S.heatIntensity=level;
+  for (const b of $("heat-intensity-seg").querySelectorAll("button")) b.classList.toggle("active", b.dataset.heatIntensity===level);
+  if (S.layer==="modeled") drawModeled(); else drawHistorical();
+  updateLegend();
+}
+function clearHist(){ for (const k in S.histMarkers) S.map.removeLayer(S.histMarkers[k]); S.histMarkers={};
+  for (const m of S.candidateMarkers) S.map.removeLayer(m); S.candidateMarkers=[]; }
+function clearHeat(){ if (S.heatLayer){ S.map.removeLayer(S.heatLayer); S.heatLayer=null; }
+  if (S.modeledPointLayer){ S.map.removeLayer(S.modeledPointLayer); S.modeledPointLayer=null; }
+  clearBoundaries();
+  if (S.selMarker){ S.map.removeLayer(S.selMarker); S.selMarker=null; } }
+function clearBoundaries(){ clearTimeout(S.zctaBoundaryTimer); if (S.zctaBoundaryLayer){ S.map.removeLayer(S.zctaBoundaryLayer); S.zctaBoundaryLayer=null; } }
+function scheduleBoundaryRender(){
+  clearTimeout(S.zctaBoundaryTimer);
+  S.zctaBoundaryTimer = setTimeout(renderBoundaries, 220);
+}
+function renderSmoothHeat(points){
+  if (!points.length) return;
+  // leaflet.heat throws IndexSizeError (getImageData on a 0-width canvas) if
+  // the map container hasn't been laid out yet; retry on the next resize
+  // instead of surfacing a scary "Failed to load report" status.
+  const size = S.map.getSize();
+  if (!size.x || !size.y){
+    S.map.once("resize", ()=>{ if (!S.heatLayer) renderSmoothHeat(points); });
+    return;
+  }
+  try {
+    S.heatLayer=L.heatLayer(points, heatOptions()).addTo(S.map);
+    applyHeatOpacity();
+  } catch(e){ console.warn("heat layer skipped:", e); }
+}
+function zctaFeatureZip(feature){
+  const p = (feature && feature.properties) || {};
+  const raw = p.ZCTA5CE20 || p.ZCTA5CE10 || p.ZCTA5 || p.GEOID20 || p.GEOID || p.BASENAME || p.zip || p.ZIP || p.ZCTA || p.zcta || "";
+  const z = String(raw).trim().padStart(5,"0");
+  return /^\d{5}$/.test(z) ? z : "";
+}
+function boundaryRow(zip){
+  if (S.layer==="modeled") return modeledByZip(zip);
+  return histByZip(zip);
+}
+function boundaryValue(row){
+  if (!row) return 0;
+  return S.layer==="modeled" ? modeledScore(row) : histValue(row,S.mode);
+}
+function boundaryNorm(row){
+  if (!row) return 0;
+  return S.layer==="modeled" ? modeledNorm(row) : histNorm(row,S.mode);
+}
+function boundaryStyle(feature){
+  const row = boundaryRow(zctaFeatureZip(feature));
+  const n = boundaryNorm(row);
+  return {
+    color: row ? "#4b3a2a" : "#8c8c8c",
+    weight: row ? 0.7 : 0.25,
+    fillColor: row ? heatColor(n) : "#d8d8dc",
+    fillOpacity: row ? Math.max(0.20, Math.min(0.72, 0.18 + n * 0.54)) : 0.04,
+    opacity: row ? 0.68 : 0.18,
+  };
+}
+async function ensureZctaBoundaries(){
+  if (S.zctaLoading || !S.map) return;
+  const zoom = S.map.getZoom();
+  if (zoom < 7){
+    S.zctaGeojson = null;
+    S.zctaUnavailable = true;
+    setStatus(t("boundariesZoomIn"));
+    updateLegend();
+    return;
+  }
+  const b = S.map.getBounds().pad(0.08);
+  const key = [
+    Math.round(b.getWest()*10)/10, Math.round(b.getSouth()*10)/10,
+    Math.round(b.getEast()*10)/10, Math.round(b.getNorth()*10)/10, zoom
+  ].join(",");
+  if (S.zctaCache[key]){
+    S.zctaGeojson = S.zctaCache[key];
+    S.zctaUnavailable = false;
+    return;
+  }
+  S.zctaLoading = true;
+  setStatus(t("loadingBoundaries"));
+  try {
+    const params = new URLSearchParams({
+      min_lng: b.getWest().toFixed(6),
+      min_lat: b.getSouth().toFixed(6),
+      max_lng: b.getEast().toFixed(6),
+      max_lat: b.getNorth().toFixed(6),
+    });
+    const resp = await fetch(`/api/zcta-boundaries?${params.toString()}`);
+    if (!resp.ok){
+      const data = await resp.json().catch(()=>({}));
+      S.zctaUnavailable = true;
+      setStatus(data.message || t("boundariesNotLoaded"));
+      updateLegend();
+      return;
+    }
+    const size = Number(resp.headers.get("content-length") || 0);
+    if (size > 75 * 1024 * 1024){
+      S.zctaUnavailable = true;
+      setStatus(t("boundariesTooLarge"));
+      updateLegend();
+      return;
+    }
+    const data = await resp.json();
+    const features = Array.isArray(data.features) ? data.features : [];
+    if (!features.length) throw new Error("Boundary file has no GeoJSON features.");
+    if (features.length > 60000) throw new Error("Boundary file has too many features; use a simplified GeoJSON.");
+    S.zctaGeojson = data;
+    S.zctaCache[key] = data;
+    S.zctaUnavailable = false;
+    setStatus(t("boundaryLoaded", {count:features.length.toLocaleString()}));
+    updateLegend();
+  } catch(e) {
+    S.zctaUnavailable = true;
+    setStatus(t("boundaryError", {error:String(e).slice(0,180)}));
+    updateLegend();
+  } finally {
+    S.zctaLoading = false;
+  }
+}
+async function renderBoundaries(){
+  clearBoundaries();
+  if (!wantsBoundaries()) return;
+  if (S.layer==="modeled") await ensureNational();
+  await ensureZctaBoundaries();
+  // The fetch above can finish after the user toggled boundaries off; bail
+  // (and tear down anything that snuck in) so the overlay never re-appears.
+  if (!wantsBoundaries()){ clearBoundaries(); return; }
+  if (!S.zctaGeojson){
+    // ensureZctaBoundaries already set a specific message (zoom-in / unavailable);
+    // only fall back to the generic one when it didn't.
+    if (!S.zctaLoading && !S.zctaUnavailable) setStatus(t("boundariesNotLoaded"));
+    return;
+  }
+  S.zctaBoundaryLayer = L.geoJSON(S.zctaGeojson, {
+    renderer: L.svg({pane:"overlayPane"}),
+    interactive: true,
+    style: boundaryStyle,
+    onEachFeature(feature, layer){
+      const zip = zctaFeatureZip(feature);
+      const row = boundaryRow(zip);
+      const value = boundaryValue(row);
+      layer.bindPopup(`<b>ZIP ${esc(zip||"—")}</b><br>${esc(S.layer==="modeled"?modeledTiltLabel(S.mode):courseLabel(S.mode))}: <b>${fmt(value)}</b>`);
+      layer.on("mouseover", () => layer.setStyle({weight:1.6, opacity:0.95}));
+      layer.on("mouseout", () => layer.setStyle(boundaryStyle(feature)));
+      layer.on("click", () => {
+        if (!zip) return;
+        if (S.layer==="modeled") selectModeled(zip,{pan:false});
+        else selectHist(zip);
+      });
+    }
+  }).addTo(S.map);
+  S.zctaBoundaryLayer.bringToFront();
+}
+function histStyle(n,sel){ return { radius:6+n*18, color:sel?"#111":"#666", weight:sel?3:1.2,
+  fillColor:heatColor(n), fillOpacity:.46+n*.48 }; }
+function drawHistorical(){
+  clearHeat(); clearHist();
+  if (wantsPoints()){
+    for (const row of S.zipRows){
+      if (row.lat==null||row.lng==null) continue;
+      const n=histNorm(row,S.mode);
+      const mk=L.circleMarker([row.lat,row.lng],histStyle(n,false));
+      mk.bindPopup(`<b>ZIP ${row.zip}</b><br>${courseLabel(S.mode)}: <b>${fmt(histValue(row,S.mode))}</b><br>${t("overallDemandScore")}: ${fmt(row.demand_score)} · ${t("classes")}: ${num(row.class_count)}`);
+      mk.on("click", () => selectHist(row.zip)); mk.addTo(S.map); S.histMarkers[row.zip]=mk;
+    }
+  }
+  if (wantsHeat()) renderSmoothHeat(derivedHeatPoints());
+  if (wantsPoints()) drawCandidates();
+  if (S.selected && S.selected.layer==="historical") highlightHist(S.selected.zip);
+  renderTopZipsInView();
+  if (S.boundariesOn) scheduleBoundaryRender(); else clearBoundaries();
+}
+function drawCandidates(){
+  for (const c of S.candidates){
+    if (c.lat==null||c.lng==null) continue;
+    const mk=L.marker([c.lat,c.lng],{icon:L.divIcon({className:"",
+      html:`<div style="background:${getCss('--candidate')};width:18px;height:18px;border:2px solid #fff;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.4)"></div>`,
+      iconSize:[18,18],iconAnchor:[9,9]})});
+    mk.bindPopup(`<b>${esc(c.name||ui("Candidate"))}</b><br>${c.address?esc(c.address)+"<br>":""}${t("areaScore")}: ${fmt(c.area_score)}<br>${c.best_course?t("bestCourse")+": "+esc(c.best_course)+"<br>":""}${esc(c.recommendation||"")}`);
+    mk.addTo(S.map); S.candidateMarkers.push(mk);
+  }
+}
+function histByZip(zip){ return S.zipRows.find(r=>r.zip===zip); }
+function highlightHist(zip){ for (const k in S.histMarkers) S.histMarkers[k].setStyle(histStyle(histNorm(histByZip(k),S.mode), k===zip)); }
+function selectHist(zip){ const row=histByZip(zip); if (!row) return;
+  S.selected={layer:"historical",zip}; $("zip-input").value=zip; renderHistDetail(row); switchTab("zip");
+  if (row.lat!=null){ highlightHist(zip); S.map.setView([row.lat,row.lng],12); const m=S.histMarkers[zip]; if (m) m.openPopup(); } }
+
+function modeledField(){ return MODELED_FIELD[S.mode]; }
+function normalizeModeledRow(row){
+  if (!row) return row;
+  const bls = row.bls_demand ?? row.aha_bls ?? row.arc_bls;
+  const cpr = row.cpr_demand ?? row.arc_cpr;
+  row.zip = String(row.zip || "").padStart(5,"0");
+  row.lng = row.lng ?? row.lon;
+  row.overall = row.overall ?? row.overall_score;
+  row.bls_demand = bls;
+  row.cpr_demand = cpr;
+  row.aha_bls = row.aha_bls ?? bls;
+  row.arc_bls = row.arc_bls ?? bls;
+  row.arc_cpr = row.arc_cpr ?? cpr;
+  row.data_confidence = row.data_confidence ?? row.confidence;
+  return row;
+}
+function drawModeled(){
+  clearHist(); clearHeat();
+  if (wantsHeat()){
+    if (S.nationalRows.length > 5000) setStatus(t("preparingHeat"));
+    renderSmoothHeat(derivedHeatPoints());
+  }
+  refreshModeledPointLayer();
+  if (S.selected && S.selected.layer==="modeled") markModeled(modeledByZip(S.selected.zip));
+  renderTopZipsInView();
+  if (S.boundariesOn) scheduleBoundaryRender(); else clearBoundaries();
+  setModeledStatus();
+}
+function refreshModeledPointLayer(){
+  if (S.layer!=="modeled" || !S.nationalLoaded || !S.map) return;
+  applyHeatOpacity();
+  if (!wantsPoints()){
+    if (S.modeledPointLayer) S.modeledPointLayer.clearLayers();
+    return;
+  }
+  const zoom=S.map.getZoom();
+  if (!S.modeledPointLayer) S.modeledPointLayer=L.layerGroup().addTo(S.map);
+  S.modeledPointLayer.clearLayers();
+  const bounds=S.map.getBounds().pad(0.2);
+  const radius = zoom>=12 ? 7 : zoom>=10 ? 6 : zoom>=8 ? 5 : 3;
+  const cap = zoom>=8 ? 2500 : 1200;
+  const rows = [];
+  for (const r of S.nationalRows){
+    if (r.lat==null||r.lng==null||modeledScore(r)<=0) continue;
+    if (bounds.contains([r.lat,r.lng])) rows.push(r);
+  }
+  rows.sort((a,b)=>modeledScore(b)-modeledScore(a));
+  for (const r of rows.slice(0,cap)){
+    const n=modeledNorm(r);
+    const mk=L.circleMarker([r.lat,r.lng],{
+      radius,
+      color:"#5b1b00",
+      weight:n>=0.66?1.6:1.0,
+      fillColor:heatColor(n),
+      fillOpacity:0.56+n*0.40,
+      pane:"overlayPane",
+    });
+    mk.bindPopup(`<b>ZIP ${r.zip}</b> · ${t("modeled")}<br>${modeledTiltLabel(S.mode)}: <b>${fmt(modeledScore(r))}</b>/100`);
+    mk.on("click", () => selectModeled(r.zip,{pan:false}));
+    mk.addTo(S.modeledPointLayer);
+  }
+}
+function modeledByZip(zip){ if (!S.nationalIndex) S.nationalIndex=new Map(S.nationalRows.map(r=>[r.zip,r])); return S.nationalIndex.get(zip); }
+function markModeled(row, openPopup=true){ if (S.selMarker){ S.map.removeLayer(S.selMarker); S.selMarker=null; } if (!row||row.lat==null||row.lng==null) return;
+  S.selMarker=L.circleMarker([row.lat,row.lng],{radius:11,color:"#111",weight:3,fillColor:getCss("--model"),fillOpacity:.85}).addTo(S.map);
+  S.selMarker.bindPopup(`<b>ZIP ${row.zip}</b> · ${t("modeled")}<br>${modeledTiltLabel(S.mode)}: <b>${fmt(row[modeledField()])}</b>/100`);
+  if (openPopup) S.selMarker.openPopup(); }
+async function ensureModeledDetail(zip){
+  const key = String(zip || "").padStart(5,"0");
+  if (S.modeledDetails[key]) return S.modeledDetails[key];
+  const lite = modeledByZip(key);
+  try {
+    const resp = await fetch(`/api/zip-demand/${encodeURIComponent(key)}`);
+    const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error(data.message || data.error || "ZIP detail unavailable.");
+    const full = normalizeModeledRow(data);
+    S.modeledDetails[key] = full;
+    if (lite) Object.assign(lite, full);
+    if (S.nationalIndex) S.nationalIndex.set(key, lite || full);
+    return lite || full;
+  } catch(e) {
+    return lite;
+  }
+}
+function selectModeled(zip, opts={}){ const key=String(zip || "").padStart(5,"0"); const row=modeledByZip(key); if (!row) return;
+  S.selected={layer:"modeled",zip:key}; $("zip-input").value=key; renderModeledDetail(row); switchTab("zip");
+  if (opts.pan !== false && row.lat!=null && row.lng!=null) S.map.setView([row.lat,row.lng],11);
+  markModeled(row, opts.openPopup !== false);
+  ensureModeledDetail(key).then(full=>{
+    if (!full || !S.selected || S.selected.layer!=="modeled" || S.selected.zip!==key) return;
+    renderModeledDetail(full);
+    markModeled(full, false);
+  });
+}
+function selectTopZip(layer, zip){
+  if (layer==="modeled") selectModeled(zip);
+  else selectHist(zip);
+}
+function rowCurrentValue(row){
+  return S.layer==="modeled" ? modeledScore(row) : histValue(row,S.mode);
+}
+function rowCurrentNorm(row){
+  if (S.layer==="modeled") return modeledNorm(row);
+  return histNorm(row,S.mode);
+}
+function rowCurrentRecommendation(row){
+  if (S.layer==="modeled") return row.validation_tier || row.recommendation || t("reviewModeledEstimate");
+  return row.recommendation || t("reviewHistoricalEvidence");
+}
+function rowCurrentConfidence(row){
+  if (S.layer==="modeled"){
+    const history = row.historical_status==="has_allcpr_history" ? (currentLang==="zh" ? "有历史" : "has history") : (currentLang==="zh" ? "仅模型" : "modeled only");
+    return `${row.data_confidence||t("unknown")} · ${history}`;
+  }
+  return row.confidence || row.historical_confidence || t("unknown");
+}
+function renderTopZipsInView(){
+  const list = $("viewport-top-list");
+  if (!list || !S.map) return;
+  const source = S.layer==="modeled" ? S.nationalRows : S.zipRows;
+  if (S.layer==="modeled" && !S.nationalLoaded){
+    list.innerHTML = `<p class="muted">${t("switchModeledRank")}</p>`;
+    return;
+  }
+  if (!source.length){
+    list.innerHTML = `<p class="muted">${t("noRowsLayer")}</p>`;
+    return;
+  }
+  const bounds = S.map.getBounds().pad(0.02);
+  const rows = [];
+  for (const row of source){
+    if (row.lat==null || row.lng==null) continue;
+    if (!bounds.contains([row.lat,row.lng])) continue;
+    const value = rowCurrentValue(row);
+    if (!Number.isFinite(value) || value <= 0) continue;
+    rows.push(row);
+  }
+  rows.sort((a,b)=>rowCurrentValue(b)-rowCurrentValue(a));
+  const metric = S.layer==="modeled" ? modeledTiltLabel(S.mode) : courseLabel(S.mode);
+  if (!rows.length){
+    list.innerHTML = `<p class="muted">${t("noVisibleScored")}</p>`;
+    return;
+  }
+  list.innerHTML = rows.slice(0,10).map(row=>{
+    const layer = S.layer;
+    const value = rowCurrentValue(row);
+    const norm = rowCurrentNorm(row);
+    const tag = norm>=.66 ? t("high") : norm>=.33 ? t("med") : t("low");
+    return `<button class="top-zip-row" onclick="selectTopZip('${layer}','${esc(row.zip)}')">`
+      + `<span class="zip">${esc(row.zip)}</span><span>${esc(metric)}</span><span class="score">${fmt(value)}</span>`
+      + `<span class="meta">${esc(tag)} · ${esc(rowCurrentConfidence(row))} · ${esc(rowCurrentRecommendation(row))}</span>`
+      + `</button>`;
+  }).join("");
+}
+function currentSourceRows(){
+  return S.layer==="modeled" ? S.nationalRows : S.zipRows;
+}
+function visibleRows(){
+  if (!S.map) return [];
+  const bounds = S.map.getBounds().pad(0.02);
+  return currentSourceRows().filter(row => row.lat!=null && row.lng!=null && bounds.contains([row.lat,row.lng]));
+}
+function topRowsInCurrentView(limit=10){
+  const rows = visibleRows().filter(row => {
+    const value = rowCurrentValue(row);
+    return Number.isFinite(value) && value > 0;
+  });
+  rows.sort((a,b)=>rowCurrentValue(b)-rowCurrentValue(a));
+  return rows.slice(0,limit);
+}
+function exportRow(row){
+  const selectedMetric = S.layer==="modeled" ? modeledTiltLabel(S.mode) : courseLabel(S.mode);
+  return {
+    zip: row.zip || "",
+    layer: S.layer,
+    selected_course: courseLabel(S.mode),
+    selected_metric: selectedMetric,
+    score_or_value: rowCurrentValue(row),
+    overall: row.overall ?? row.demand_score ?? "",
+    bls_demand: row.bls_demand ?? "",
+    cpr_demand: row.cpr_demand ?? "",
+    demand_score: row.demand_score ?? "",
+    population: row.population ?? "",
+    population_density: row.population_density ?? "",
+    median_income: row.median_income ?? "",
+    data_confidence: row.data_confidence ?? row.confidence ?? "",
+    historical_status: row.historical_status ?? (S.layer==="historical" ? "has_allcpr_history" : ""),
+    recommendation: row.recommendation ?? "",
+    recommended_next_action: row.recommended_next_action ?? "",
+    score_formula_version: row.score_formula_version ?? "",
+    market_demand_score: row.market_demand_score ?? "",
+    validation_evidence_score: row.validation_evidence_score ?? "",
+    commercial_feasibility_score: row.commercial_feasibility_score ?? "",
+    competition_risk_level: row.competition_risk_level ?? "",
+    final_site_priority_score: row.final_site_priority_score ?? "",
+    site_priority_decision: row.site_priority_decision ?? "",
+    risk_flags: Array.isArray(row.risk_flags) ? row.risk_flags.join("|") : (row.risk_flags ?? ""),
+  };
+}
+function csvEscape(value){
+  const text = value == null ? "" : String(value);
+  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g,'""')}"` : text;
+}
+function rowsToCSV(rows){
+  const cols = ["zip","layer","selected_course","selected_metric","score_or_value","overall","bls_demand","cpr_demand","demand_score","population","population_density","median_income","data_confidence","historical_status","recommendation","recommended_next_action","score_formula_version","market_demand_score","validation_evidence_score","commercial_feasibility_score","competition_risk_level","final_site_priority_score","site_priority_decision","risk_flags"];
+  return [cols.join(","), ...rows.map(row => cols.map(col => csvEscape(row[col])).join(","))].join("\n");
+}
+function downloadBlob(filename, content, type){
+  const blob = new Blob([content], {type});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+function exportTopZipsCurrentViewCSV(){
+  const rows = topRowsInCurrentView(10);
+  if (!rows.length){ setStatus(t("noVisibleExport")); return; }
+  downloadBlob("allcpr_top_zips_current_view.csv", rowsToCSV(rows.map(exportRow)), "text/csv");
+}
+function exportCurrentMapViewCSV(){
+  const rows = visibleRows().filter(row => Number.isFinite(rowCurrentValue(row)));
+  if (!rows.length){ setStatus(t("noVisibleRowsExport")); return; }
+  rows.sort((a,b)=>rowCurrentValue(b)-rowCurrentValue(a));
+  downloadBlob("allcpr_current_map_view.csv", rowsToCSV(rows.map(exportRow)), "text/csv");
+}
+function selectedRowObject(){
+  if (!S.selected) return null;
+  return S.selected.layer==="modeled" ? modeledByZip(S.selected.zip) : histByZip(S.selected.zip);
+}
+function exportSelectedZipDetailJSON(){
+  const row = selectedRowObject();
+  if (!row){ setStatus(t("selectBeforeJson")); return; }
+  downloadBlob(`allcpr_selected_zip_${row.zip}.json`, JSON.stringify(row,null,2), "application/json");
+}
+async function exportNationalTopZipsCSV(){
+  if (S.layer==="modeled") await ensureNational();
+  const rows = currentSourceRows().filter(row => Number.isFinite(rowCurrentValue(row)));
+  if (!rows.length){ setStatus(t("noRowsTopExport")); return; }
+  rows.sort((a,b)=>rowCurrentValue(b)-rowCurrentValue(a));
+  downloadBlob("allcpr_national_top_zips.csv", rows.slice(0,100).map(exportRow).length ? rowsToCSV(rows.slice(0,100).map(exportRow)) : "", "text/csv");
+}
+async function exportQASummaryJSON(){
+  try {
+    const resp = await fetch("/api/national-demand-qa");
+    const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error(data.message || data.error || "QA summary unavailable.");
+    downloadBlob("allcpr_national_demand_qa.json", JSON.stringify(data,null,2), "application/json");
+  } catch(e) {
+    setStatus(t("qaUnavailable", {error:String(e).slice(0,180)}));
+  }
+}
+function haversine(la1,lo1,la2,lo2){ const R=3958.8,t=Math.PI/180,dLa=(la2-la1)*t,dLo=(lo2-lo1)*t;
+  const a=Math.sin(dLa/2)**2+Math.cos(la1*t)*Math.cos(la2*t)*Math.sin(dLo/2)**2; return 2*R*Math.asin(Math.sqrt(a)); }
+function nearestModeled(lat,lng,maxMi){ let best=null,bd=Infinity;
+  for (const r of S.nationalRows){ const d=haversine(lat,lng,r.lat,r.lng); if (d<bd){ bd=d; best=r; } } return bd<=maxMi?best:null; }
+function nearestHistorical(lat,lng,maxMi){ let best=null,bd=Infinity;
+  for (const r of S.zipRows){ if (r.lat==null||r.lng==null) continue; const d=haversine(lat,lng,r.lat,r.lng); if (d<bd){ bd=d; best=r; } } return bd<=maxMi?best:null; }
+function clickedLocationHTML(lat,lng,zip,address,source){
+  const safeZip = zip ? esc(zip) : "—";
+  const safeAddress = address ? esc(address) : (currentLang==="zh" ? "地址查询不可用。" : "Address lookup unavailable.");
+  return `<b>${currentLang==="zh" ? "点击位置" : "Clicked location"}</b><br><span class="muted">ZIP</span> <b>${safeZip}</b><br>${safeAddress}<br><span class="muted">${lat.toFixed(5)}, ${lng.toFixed(5)}${source?" · "+esc(source):""}</span>`;
+}
+async function identifyClickedLocation(e){
+  const lat=e.latlng.lat, lng=e.latlng.lng, key=`${lat.toFixed(5)},${lng.toFixed(5)}`;
+  const seq=++S.identifySeq;
+  let nearest = null;
+  if (S.nationalLoaded) nearest = nearestModeled(lat,lng, S.map.getZoom()>=9?4:12);
+  if (S.identifyMarker) S.map.removeLayer(S.identifyMarker);
+  S.identifyMarker=L.marker([lat,lng]).addTo(S.map)
+    .bindPopup(clickedLocationHTML(lat,lng,nearest&&nearest.zip,currentLang==="zh" ? "正在查询地址…" : "Looking up address…","")).openPopup();
+  if (S.reverseCache[key]){
+    const cached=S.reverseCache[key];
+    S.identifyMarker.setPopupContent(clickedLocationHTML(lat,lng,cached.zip||nearest&&nearest.zip,cached.address,cached.source));
+    return;
+  }
+  try {
+    const resp=await fetch(`/api/reverse-geocode?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
+    const data=await resp.json();
+    if (seq !== S.identifySeq) return;
+    if (data.error) throw new Error(data.message||data.error);
+    S.reverseCache[key]=data;
+    S.identifyMarker.setPopupContent(clickedLocationHTML(lat,lng,data.zip||nearest&&nearest.zip,data.address,data.source));
+  } catch(err) {
+    if (seq !== S.identifySeq) return;
+    S.identifyMarker.setPopupContent(clickedLocationHTML(lat,lng,nearest&&nearest.zip,currentLang==="zh" ? "地址查询不可用。" : "Address lookup unavailable.", ""));
+  }
+}
+function onMapClick(e){
+  identifyClickedLocation(e);
+  const maxMi = S.map.getZoom()>=9?4:12;
+  if (S.layer==="modeled" && S.nationalLoaded){
+    const r=nearestModeled(e.latlng.lat,e.latlng.lng,maxMi);
+    if (r) selectModeled(r.zip,{pan:false,openPopup:false});
+  } else if (S.layer==="historical"){
+    const r=nearestHistorical(e.latlng.lat,e.latlng.lng,maxMi);
+    if (r) selectHist(r.zip);
+  }
+}
+
+async function ensureNational(opts){
+  const background = !!(opts && opts.background);
+  // A background preload (kicked off after first paint) must never clobber the
+  // status line the user is reading on the historical layer.
+  const speak = !background || S.layer==="modeled";
+  if (S.nationalLoaded||S.nationalLoading) return;
+  S.nationalLoading=true; if (speak) setStatus(t("loadingNational"));
+  try { const resp=await fetch("/api/national-demand"); const data=await resp.json();
+    if (data.error){ if (speak) setStatus(data.message||t("modeledLayerNotBuilt")); S.nationalLoading=false; return; }
+    S.national=data; S.nationalRows=(data.rows||[]).map(normalizeModeledRow); S.nationalIndex=null; S.nationalLoaded=true;
+    S.heatCache={};
+    $("methodology").textContent=data.methodology||"";
+    if (data.enrichment_summary) $("data-notes").insertAdjacentHTML("beforeend", `<li>${esc(data.enrichment_summary)}</li>`);
+    if (speak){ setModeledStatus(); renderTopZipsInView(); }
+  } catch(e){ if (speak) setStatus(t("failedModeled", {error:e})); }
+  S.nationalLoading=false;
+}
+
+// ---------- Commercial card ----------
+function commercialCardHTML(c){
+  if (!c || !c.commercial_validated)
+    return `<div class="caveat">${t("commercialNotAdded")}</div>`;
+  const rent = c.rent_min!=null ? `$${Number(c.rent_min).toLocaleString()}–$${Number(c.rent_max).toLocaleString()}/mo` : "—";
+  let h = `<div class="commercial-box"><b>${t("commercialValidation")}</b> <span class="badge commercial">${c.commercial_ready?t("spaceAvailable"):t("validated")}</span>`;
+  const rows = [
+    [t("availableSpaces"), `${num(c.available_space_count)} of ${num(c.commercial_space_count)}`],
+    [t("rentRange"), rent], [t("parking"), esc(c.parking_summary||"—")],
+    [t("classroomFit"), esc(c.classroom_fit_summary||"—")], [t("updated"), esc(c.commercial_updated_at||"—")],
+  ];
+  h += rows.map(([l,v])=>`<div class="metric-row"><span>${esc(l)}</span><span>${v}</span></div>`).join("");
+  if (c.commercial_sources && c.commercial_sources.length)
+    h += `<div style="margin-top:6px;font-size:.83rem;">${t("sources")}: ` + c.commercial_sources.map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${t("link")}</a>`).join(", ") + `</div>`;
+  if (c.commercial_notes && c.commercial_notes.length)
+    h += `<div class="muted" style="font-size:.82rem;margin-top:4px;">${esc(c.commercial_notes.join(" · "))}</div>`;
+  h += `</div>`;
+  return h;
+}
+
+// ---------- Detail render ----------
+function automatedModeledSteps(label){
+  if (["Low priority","Insufficient data"].includes(label)) {
+    return [t("keepLowPriority"), t("addEnrichmentSignals"), t("autoUpgradeIfSupported")];
+  }
+  if (label === "Watchlist") {
+    return [t("monitorWatchlist"), t("addEnrichmentSignals"), t("autoUpgradeIfSupported")];
+  }
+  return [t("addEnrichmentSignals"), t("screenCommercialFit"), t("autoUpgradeIfSupported")];
+}
+function decisionBlock(dec, opts={}){
+  let h = `<div class="reason"><b>${t("why")}</b> ${esc(ui(dec.reason))}</div>`;
+  const steps = opts.automated ? automatedModeledSteps(dec.label) : dec.nextSteps.map(s=>ui(s));
+  const heading = opts.automated ? t("automatedNextSteps") : t("validationNextSteps");
+  h += `<h3>${heading}</h3><ul class="tight">` + steps.map(s=>`<li>${esc(s)}</li>`).join("") + `</ul>`;
+  if (dec.risk.length) h += `<h3>${t("riskFlags")}</h3><ul class="tight">` + dec.risk.map(r=>`<li class="risk">${esc(ui(r))}</li>`).join("") + `</ul>`;
+  return h;
+}
+function bulletList(items, empty="None flagged."){
+  const arr = Array.isArray(items) ? items.filter(Boolean) : [];
+  return arr.length ? `<ul class="tight">${arr.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="muted">${esc(ui(empty))}</p>`;
+}
+function riskChips(flags){
+  const arr = Array.isArray(flags) ? flags.filter(Boolean) : [];
+  return arr.length ? `<div class="chips">${arr.map(f=>`<span class="chip risk-flag">${esc(readableText(f))}</span>`).join("")}</div>` : `<p class="muted">${t("noRiskFlags")}</p>`;
+}
+function readableText(value){
+  const text = String(value==null?"":value).replace(/_/g, " ").replace(/\s+/g, " ").trim();
+  return text ? text.charAt(0).toUpperCase() + text.slice(1) : "—";
+}
+function courseOperatorProfile(row){
+  const profiles = row && row.course_priority_profiles;
+  const p = profiles && (profiles[S.mode] || profiles.overall);
+  if (p) return p;
+  return {
+    selected_course_type:S.mode, selected_course_label:courseLabel(S.mode),
+    operator_decision:row.site_priority_decision || t("reviewRequired"),
+    operator_status:row.site_priority_score_status || t("reviewRequired"),
+    course_fit_label:t("reviewRequired"),
+    operator_confidence:row.validation_evidence_score==null ? t("unknown") : "Medium",
+    course_specific_blockers:[],
+    course_specific_next_action:row.recommended_next_action || row.recommendation || t("reviewModeledEstimate"),
+    operator_summary:row.site_priority_explanation || row.plain_english_summary || t("noScoreExplanation"),
+    course_why_bullets:[row.site_priority_explanation || row.plain_english_summary || t("noScoreExplanation")],
+    competition_risk_label:row.competition_risk_label || readableText(row.competition_risk_level),
+  };
+}
+function statusBadge(statusText, decisionText=""){
+  const d = `${statusText} ${decisionText}`.toLowerCase();
+  if (d.includes("ready")) return {label:t("readyForScreening"), cls:"ready"};
+  if (d.includes("strong")) return {label:t("strongCandidate"), cls:"strong"};
+  if (d.includes("commercial validation") || d.includes("validate commercial") || d.includes("needs validation")) return {label:t("needsValidation"), cls:"validation"};
+  if (d.includes("needs field test")) return {label:t("needsFieldTest"), cls:"field"};
+  if (d.includes("saturated") || d.includes("saturation") || d.includes("competition")) return {label:t("highCompetitionRisk"), cls:"saturation"};
+  if (d.includes("insufficient data")) return {label:t("insufficientData"), cls:"insufficient"};
+  return {label:t("reviewRequired"), cls:"review"};
+}
+function operatorDecisionHTML(row){
+  if (!row || !row.score_formula_version) return "";
+  const profile = courseOperatorProfile(row);
+  const badge = statusBadge(profile.operator_status, profile.operator_decision);
+  const blockers = Array.isArray(profile.course_specific_blockers) ? profile.course_specific_blockers.filter(Boolean) : [];
+  const why = Array.isArray(profile.course_why_bullets) ? profile.course_why_bullets.filter(Boolean) : [];
+  let h = `<div class="decision-summary">`
+    + `<div class="decision-head"><div><div class="decision-eyebrow">${t("operatorDecision")}</div>`
+    + `<div class="decision-title">${esc(profile.operator_decision||t("reviewRequired"))}</div></div>`
+    + `<span class="badge decision-status status-${badge.cls}">${esc(profile.operator_status||badge.label)}</span></div>`
+    + `<div class="plain-line">${esc(profile.operator_summary||t("noScoreExplanation"))}</div>`
+    + `<div class="next-action"><span class="na-label">${t("plainWhatToDo")}</span> ${esc(profile.course_specific_next_action||"—")}</div>`
+    + `<div class="chips">`
+      + `<span class="chip">${t("courseFit")}: ${esc(profile.course_fit_label||"—")}</span>`
+      + `<span class="chip">${t("confidence")}: ${esc(profile.operator_confidence||"—")}</span>`
+      + (blockers.length?`<span class="chip risk-flag">${t("mainBlockers")}: ${esc(blockers.join(" + "))}</span>`:``)
+    + `</div>`;
+  h += `</div>`;
+  return h;
+}
+function scoreCardHTML(label, value, meaning, source){
+  return `<div class="score-card"><div class="sc-label">${esc(label)}</div>`
+    + `<div class="sc-value">${esc(value)}</div>`
+    + `<div class="sc-meta"><b>${t("scoreMeaning")}:</b> ${esc(meaning)}</div>`
+    + `<div class="sc-meta"><b>${t("scoreSource")}:</b> ${esc(source)}</div></div>`;
+}
+function dashboardRawRow(row){
+  const out = {...row};
+  if (out.competition_risk_level) out.competition_risk_level = out.competition_risk_label || readableText(out.competition_risk_level);
+  if (out.site_priority_risk_flags) out.site_priority_risk_flags = (Array.isArray(out.site_priority_risk_flags) ? out.site_priority_risk_flags : [out.site_priority_risk_flags]).map(readableText);
+  if (out.risk_flags) out.risk_flags = (Array.isArray(out.risk_flags) ? out.risk_flags : [out.risk_flags]).map(readableText);
+  return out;
+}
+function scoreBreakdownHTML(row){
+  const b = row && row.site_priority_score_breakdown;
+  if (!b || !Array.isArray(b.components) || b.final_site_priority_score==null) return "";
+  const rows = b.components.map(c=>{
+    const val = c.value==null ? "—" : fmt(c.value);
+    const pts = c.weighted_points==null ? "—" : fmt(c.weighted_points);
+    const note = c.note ? `<div class="bd-note">${esc(c.note)}</div>` : "";
+    return `<div class="bd-row"><span class="bd-label">${esc(readableText(c.label))}${note}</span>`
+      + `<span class="bd-calc">${esc(val)} × ${c.weight_pct}%</span>`
+      + `<span class="bd-pts">${esc(pts)}</span></div>`;
+  }).join("");
+  const penalty = Number(b.competition_saturation_penalty)||0;
+  let h = `<div class="score-breakdown"><h3>${t("whyFinalScore")}</h3><div class="bd-table">`
+    + rows
+    + `<div class="bd-row bd-sub"><span class="bd-label">${t("formulaSubtotal")}</span><span class="bd-calc"></span><span class="bd-pts">${esc(fmt(b.subtotal))}</span></div>`;
+  if (penalty) h += `<div class="bd-row bd-pen"><span class="bd-label">${t("formulaPenalty")}</span><span class="bd-calc"></span><span class="bd-pts">−${esc(fmt(penalty))}</span></div>`;
+  h += `<div class="bd-row bd-final"><span class="bd-label">${t("finalSitePriorityScore")}</span><span class="bd-calc"></span><span class="bd-pts">${esc(fmt(b.final_site_priority_score))}</span></div>`
+    + `</div><div class="reason bd-summary">${esc(b.summary||"")}</div></div>`;
+  return h;
+}
+function sitePriorityV21HTML(row){
+  if (!row || !row.score_formula_version) return "";
+  const profile = courseOperatorProfile(row);
+  const finalScore = row.final_site_priority_score==null ? "—" : `${fmt(row.final_site_priority_score)} / 100`;
+  const courseScore = profile.course_site_priority_score==null ? "—" : `${fmt(profile.course_site_priority_score)} / 100`;
+  const marketScore = row.market_demand_score==null ? "—" : `${fmt(row.market_demand_score)} / 100`;
+  const validationScore = row.validation_evidence_score==null ? "—" : `${fmt(row.validation_evidence_score)} / 100`;
+  const commercialScore = row.commercial_feasibility_score==null ? esc(row.commercial_feasibility_status||t("unknown")) : `${fmt(row.commercial_feasibility_score)} / 100`;
+  const nextSteps = Array.isArray(row.site_priority_next_steps) ? row.site_priority_next_steps : [];
+  const riskFlags = Array.isArray(row.site_priority_risk_flags) ? row.site_priority_risk_flags : [];
+  const riskLabel = profile.competition_risk_label || row.competition_risk_label || readableText(row.competition_risk_level);
+  let h = `<h3>${t("detailedScoreBreakdown")}</h3>`
+    + `<div class="score-cards">`
+      + scoreCardHTML(t("finalSitePriorityScore"), finalScore, t("sitePriorityDecision"), row.score_formula_version)
+      + scoreCardHTML(t("courseFit"), courseScore, profile.course_fit_label||t("reviewRequired"), profile.selected_course_label||courseLabel(S.mode))
+      + scoreCardHTML(t("marketDemandScore"), marketScore, t("marketOpportunityStrength"), t("modeledDemandScore"))
+      + scoreCardHTML(t("validationEvidenceScore"), validationScore, t("realWorldSupport"), t("enrichmentSignals"))
+      + scoreCardHTML(t("commercialFeasibilityScore"), commercialScore, t("commercialFeasibility"), row.commercial_feasibility_status||t("unknown"))
+      + scoreCardHTML(t("competitionRisk"), riskLabel||"—", t("competitionRisk"), `penalty ${fmt(row.competition_saturation_penalty||0)}`)
+      + scoreCardHTML(t("marketOpportunityScoreV20"), `${fmt(row.overall)} / 100`, t("marketOpportunityStrength"), t("modeledDemandScore"))
+    + `</div>`
+    + scoreBreakdownHTML(row)
+    + [[t("sitePriorityDecision"), esc(row.site_priority_decision||"—")],
+       [t("competitionRisk"), esc(riskLabel||"—")],
+       [t("scoreStatus"), esc(row.site_priority_score_status||"—")],
+       [t("formulaVersion"), esc(row.score_formula_version||"—")]]
+      .map(([l,v])=>`<div class="metric-row"><span>${esc(l)}</span><span>${v}</span></div>`).join("")
+    + `<h3>${t("whyThisDecision")}</h3><div class="reason">${esc(row.site_priority_explanation||t("noScoreExplanation"))}</div>`
+    + `<h3>${t("nextSteps")}</h3>${bulletList(nextSteps, t("noneFlagged"))}`;
+  if (riskFlags.length) h += `<h3>${t("riskFlags")}</h3>${riskChips(riskFlags)}`;
+  return h;
+}
+function modeledScoreDrivers(row, enriched){
+  const out = [];
+  if (row.population_density != null) out.push(t("populationDensity"));
+  if (row.population != null) out.push(t("population"));
+  if (row.cpr_demand != null) out.push("CPR demand");
+  if (enriched && (row.validation_score != null || row.healthcare_facility_count != null || row.commercial_space_available != null)) out.push(t("healthcareCommercialValidation"));
+  return [...new Set(out)].slice(0, 4);
+}
+function modeledWatchouts(row, enriched){
+  const out = [];
+  const gap = row.competition_gap_score == null ? null : Number(row.competition_gap_score);
+  if (gap != null && Number.isFinite(gap) && gap < 35) out.push(t("competitorSaturation"));
+  const share = row.healthcare_employment_share == null ? null : Number(row.healthcare_employment_share);
+  if (share != null && Number.isFinite(share) && share < 0.03) out.push(t("weakHealthcareEmploymentShare"));
+  if (!enriched) out.push(t("missingEnrichment"));
+  return [...new Set(out)].slice(0, 4);
+}
+function baselineMarketV20HTML(row, validationDisplay, val, enriched){
+  const compactDrivers = modeledScoreDrivers(row, enriched);
+  const compactWatchouts = modeledWatchouts(row, enriched);
+  const rows = [[t("overallOpp"),fmt(row.overall)+"/100"],[t("healthcareBlsDemand"),fmt(row.bls_demand)+"/100"],
+    [t("communityCprDemand"),fmt(row.cpr_demand)+"/100"],[t("selectedTilt"),fmt(val)+"/100"],
+    [t("apiPriority"),esc(row.api_priority||"—")],
+    [t("apiCandidateScore"),row.api_candidate_score!=null?fmt(row.api_candidate_score)+"/100":"—"],
+    [t("recommendedForLivePlaces"),row.recommended_for_live_places===true?t("yes"):row.recommended_for_live_places===false?t("no"):"—"],
+    [t("population"),row.population!=null?Number(row.population).toLocaleString():"—"],
+    [t("populationDensity"),row.population_density!=null?Number(row.population_density).toLocaleString():"—"],
+    [t("medianIncome"),row.median_income!=null?"$"+Number(row.median_income).toLocaleString():"—"],
+    [t("healthcareEmploymentShare"),row.healthcare_employment_share!=null?(row.healthcare_employment_share*100).toFixed(1)+"%":"—"],
+    [t("dataConfidence"),esc(row.data_confidence||"—")],
+    [t("validationConfidence"),validationDisplay]];
+  let h = `<h3>${t("baselineMarketV20")}</h3>`
+    + `<div class="score-cards">`
+      + scoreCardHTML(t("marketOpportunityScoreV20"), `${fmt(row.overall)} / 100`, t("marketOpportunityStrength"), t("modeledDemandScore"))
+      + scoreCardHTML(t("validationConfidence"), validationDisplay, t("realWorldSupport"), t("enrichmentSignals"))
+      + scoreCardHTML(t("historicalConfidence"), row.historical_confidence||"—", t("historicalClassConfidence"), t("historicalAllcprEnrollware"))
+      + scoreCardHTML(t("dataConfidence"), row.data_confidence||"—", t("baselineCompleteness"), t("censusGazetteerInputs"))
+    + `</div>`
+    + `<div class="score-note">${t("baselineMarketHelp")}</div>`
+    + `<h3>${t("whyThisScore")}</h3>`
+    + `<div class="reason">${esc(row.plain_english_summary||t("noScoreExplanation"))}</div>`
+    + `<div class="mini-score"><div><h4>${t("topDrivers")}</h4>${bulletList(compactDrivers, t("noStrongDrivers"))}</div>`
+    + `<div><h4>${t("watchouts")}</h4>${bulletList(compactWatchouts, t("noMajorWeaknesses"))}</div></div>`
+    + `<h3>${t("topScoreDrivers")}</h3>${bulletList(row.score_drivers, t("noStrongDrivers"))}`
+    + `<h3>${t("weaknesses")}</h3>${bulletList(row.score_weaknesses, t("noMajorWeaknesses"))}`
+    + `<h3>${t("riskFlags")}</h3>${riskChips(row.risk_flags)}`
+    + `<div class="metric-row"><span>${t("recommendedNextAction")}</span><span>${esc(row.recommendation_reason||row.recommended_next_action||row.recommendation||t("insufficientData"))}</span></div>`
+    + rows.map(([l,v])=>`<div class="metric-row"><span>${esc(l)}</span><span>${v}</span></div>`).join("")
+    + `<div class="reason muted" style="font-size:.8rem;">${t("confidenceHelp")}</div>`;
+  if (row.api_filter_reason) h += `<div class="reason"><b>API filter:</b> ${esc(row.api_filter_reason)}</div>`;
+  return h;
+}
+// ---------- Plain-English snapshot (boss-friendly, no raw stats) ----------
+function scoreBand(score){
+  const n = score==null ? null : Number(score);
+  if (n==null || !Number.isFinite(n)) return {label:t("gNoData"), cls:"g-none", sub:""};
+  if (n>=65) return {label:t("gStrong"), cls:"g-strong", sub:t("gDemandStrongSub")};
+  if (n>=40) return {label:t("gMedium"), cls:"g-medium", sub:t("gDemandMediumSub")};
+  return {label:t("gWeak"), cls:"g-weak", sub:t("gDemandWeakSub")};
+}
+function competitionBand(row){
+  const lvl = String(row.competition_risk_level||row.competition_risk_label||"").toLowerCase();
+  if (lvl.includes("saturat")) return {label:t("gCrowded"), cls:"g-weak", sub:t("gCrowdedSub")};
+  if (lvl.includes("unproven")) return {label:t("gUnproven"), cls:"g-none", sub:""};
+  if (lvl.includes("competitive")) return {label:t("gSome"), cls:"g-medium", sub:""};
+  if (lvl.includes("low") || lvl.includes("moderate")) return {label:t("gOpen"), cls:"g-strong", sub:""};
+  const raw = row.competitor_count!=null ? row.competitor_count : row.nearby_cpr_competitors_5mi;
+  const n = raw==null ? null : Number(raw);
+  if (n==null || !Number.isFinite(n)) return {label:t("gNoData"), cls:"g-none", sub:""};
+  if (n>=12) return {label:t("gCrowded"), cls:"g-weak", sub:t("gCrowdedSub")};
+  if (n>=4) return {label:t("gSome"), cls:"g-medium", sub:""};
+  return {label:t("gOpen"), cls:"g-strong", sub:""};
+}
+function spaceBand(row){
+  const c = row.commercial;
+  if (c && c.commercial_ready) return {label:t("gAvailable"), cls:"g-strong", sub:""};
+  if (c && c.commercial_validated) return {label:t("gChecked"), cls:"g-medium", sub:""};
+  return {label:t("gNotChecked"), cls:"g-none", sub:""};
+}
+function historyBand(row){
+  if (row.historical_status==="has_allcpr_history") return {label:t("gProven"), cls:"g-strong", sub:""};
+  return {label:t("gNew"), cls:"g-none", sub:""};
+}
+function glanceItem(label, band){
+  return `<div class="glance-item"><div class="g-label">${esc(label)}</div>`
+    + `<div class="g-value ${band.cls}"><span class="glance-dot ${band.cls}"></span>${esc(band.label)}</div>`
+    + (band.sub?`<div class="g-sub">${esc(band.sub)}</div>`:``)+`</div>`;
+}
+function plainSnapshotHTML(row){
+  const demandScore = row.market_demand_score!=null ? row.market_demand_score
+    : (row.overall!=null ? row.overall : row.demand_score);
+  const demand = scoreBand(demandScore);
+  return `<h3 style="margin:14px 0 2px;">${t("glanceTitle")}</h3>`
+    + `<div class="glance">`
+    + glanceItem(t("gDemand"), demand)
+    + glanceItem(t("gCompetition"), competitionBand(row))
+    + glanceItem(t("gSpace"), spaceBand(row))
+    + glanceItem(t("gHistory"), historyBand(row))
+    + `</div>`;
+}
+function areaSummaryLine(row){
+  const parts = [];
+  const hc = row.healthcare_facility_count!=null?Number(row.healthcare_facility_count):null;
+  const hosp = row.hospital_count!=null?Number(row.hospital_count):null;
+  const nurse = row.nursing_school_count!=null?Number(row.nursing_school_count):null;
+  const comp = row.competitor_count!=null?Number(row.competitor_count):null;
+  if (hc) parts.push(`${hc.toLocaleString()} ${ui("healthcare facilities")}`);
+  else if (hosp) parts.push(`${hosp.toLocaleString()} ${ui("hospitals")}`);
+  if (nurse) parts.push(`${nurse.toLocaleString()} ${ui("nursing schools")}`);
+  if (comp!=null) parts.push(`${comp.toLocaleString()} ${ui("CPR competitors")}`);
+  if (!parts.length) return "";
+  return `<div class="plain-line"><b>${t("areaLooksLike")}:</b> ${esc(parts.join(" · "))}.</div>`;
+}
+function renderHistDetail(row){
+  const mode=S.mode, hv=histValue(row,mode), n=histNorm(row,mode);
+  const dec=decideJS("historical", num(row.demand_score), n, row.confidence, row.commercial, null, row);
+  const go = dec.label===DEC.COMMERCIAL || dec.label===DEC.STRONG;
+  let h = `<h2>ZIP ${esc(row.zip)} <span class="badge hist">${t("realHistory")}</span>`
+    + (row.commercial&&row.commercial.commercial_validated?` <span class="badge commercial">${ui("Commercial validated")}</span>`:``) + `</h2>`
+    + `<div class="muted">${courseLabel(mode)} · ${t("realEnrollware")}</div>`
+    + `<div class="reco ${go?'go':''}">${esc(ui(dec.label))}</div>`
+    + `<div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn primary" onclick="addCompare()">${t("addToComparison")}</button><button class="btn ghost" id="export-selected-json" onclick="exportSelectedZipDetailJSON()">${t("exportZipJson")}</button></div>`;
+  if (row.missing_centroid) h += `<div class="caveat">${t("missingCentroid")}</div>`;
+  h += plainSnapshotHTML(row);
+  h += `<div class="plain-line">${t("realHistoryAttached")}</div>`;
+  h += commercialCardHTML(row.commercial);
+  // Every analyst-grade block collapses behind ONE entry point (same pattern
+  // as the modeled panel); the raw-JSON dump was dropped (Export ZIP JSON
+  // covers it).
+  const rows = [[t("overallDemandScore"),fmt(row.demand_score)],[`${courseLabel(mode)} ${t("courseValue")}`,fmt(hv)],
+    [t("classCount"),num(row.class_count)],["AHA BLS students",num(row.aha_bls_students)],
+    ["ARC BLS students",num(row.arc_bls_students)],["ARC CPR students",num(row.arc_cpr_students)],
+    [t("avgStudents"),fmt(row.avg_students)],[t("fillRate"),fmt(row.fill_rate)+"%"],[t("confidence"),esc(row.confidence||"—")]];
+  let adv = `<h3>${t("whyThisDecision")}</h3>${decisionBlock(dec)}`;
+  adv += `<h3>${t("provenAllcprDemand")}</h3>`
+    + `<div class="muted">${currentLang==="zh" ? "真实 ALLCPR 课程/学生历史。" : "Real ALLCPR class/student history."}</div>`
+    + (row.calibration_note?`<div class="plain-line">${esc(row.calibration_note)}</div>`:``)
+    + rows.map(([l,v])=>`<div class="metric-row"><span>${esc(l)}</span><span>${v}</span></div>`).join("");
+  if (row.proven_demand_score!=null){
+    const mix=row.historical_course_mix||{};
+    adv += [[t("provenDemandScore"),fmt(row.proven_demand_score)+"/100"],
+        [t("totalStudents"),row.proven_total_students!=null?num(row.proven_total_students):num(row.total_students)],
+        [t("bestHistoricalCourse"),esc(row.best_historical_course||"—")],
+        [t("courseMix"),Object.keys(mix).length?Object.entries(mix).map(([k,v])=>`${k}: ${Math.round((v||0)*100)}%`).join(" · "):"—"]]
+        .map(([l,v])=>`<div class="metric-row"><span>${esc(l)}</span><span>${v}</span></div>`).join("");
+  }
+  adv += `<h3>${t("courseComparison")}</h3><table class="cmp"><tr><th>${t("courseLabel")}</th><th>${t("students")}</th></tr>`
+    + `<tr><td>AHA BLS</td><td>${num(row.aha_bls_students)}</td></tr><tr><td>ARC BLS</td><td>${num(row.arc_bls_students)}</td></tr>`
+    + `<tr><td>ARC CPR</td><td>${num(row.arc_cpr_students)}</td></tr></table>`;
+  h += `<details class="adv-wrap"><summary>${t("gAdvanced")}</summary>${adv}</details>`;
+  h += opsPanelPlaceholderHTML();
+  $("detail-card").innerHTML = h;
+  loadOperatingReadiness(row.zip);
+}
+function renderModeledDetail(row){
+  const tilt=modeledTiltLabel(S.mode), val=num(row[modeledField()]);
+  const enriched = row.tier==="enriched" || row.enrichment_tier;
+  const dec=decideJS("modeled", num(row.overall), val/100, row.data_confidence, row.commercial, row.enrichment_tier||(enriched?"enriched":null), row);
+  if (row.validation_tier) {
+    dec.label = row.validation_tier;
+    dec.reason = row.recommendation_reason || row.confidence_reason || dec.reason;
+  }
+  const go = ["Strong opportunity","Promising opportunity","Validation-supported opportunity",DEC.COMMERCIAL,DEC.STRONG].includes(dec.label);
+  const tierBadge = enriched ? `<span class="badge tier">${t("enriched")} ${t("modeled")}${row.enrichment_tier?" · "+esc(row.enrichment_tier):""}</span>` : `<span class="badge model">${ui("Modeled · baseline")}</span>`;
+  const hasValidationEvidence = !!(enriched || (row.commercial && row.commercial.commercial_validated));
+  const validationDisplay = hasValidationEvidence && row.validation_score!=null ? `${fmt(row.validation_score)} / 100` : "—";
+  let h = `<h2>ZIP ${esc(row.zip)} — ${esc(courseLabel(S.mode))} ${tierBadge}`
+    + (row.commercial&&row.commercial.commercial_validated?` <span class="badge commercial">${ui("Commercial validated")}</span>`:``) + `</h2>`
+    + `<div class="muted">${esc(tilt)} · ${t("publicEstimate")}</div>`
+    + (row.score_formula_version ? operatorDecisionHTML(row) : `<div class="reco ${go?'go':''}">${esc(ui(dec.label))}</div>`)
+    + plainSnapshotHTML(row)
+    + areaSummaryLine(row)
+    + commercialCardHTML(row.commercial)
+    + `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button class="btn primary" onclick="addCompare()">${t("addToComparison")}</button><button class="btn ghost" id="export-selected-json" onclick="exportSelectedZipDetailJSON()">${t("exportZipJson")}</button>`
+      + (!enriched?`<button class="btn ghost" title="${esc(t("manualValidationHint"))}" onclick="alert('${esc(t("manualValidationHint"))}')">${t("requestManualValidation")}</button>`:``)
+    + `</div>`
+    + `<div class="caveat">${t("modeledCaveat")}</div>`;
+  if (!row.score_formula_version) h += decisionBlock(dec, {automated:true});
+  // Every analyst-grade block collapses behind ONE entry point so the default
+  // view stays a plain-English summary and there is exactly one place to open
+  // for more numbers. Score-explanation bullets and the raw-JSON dump were
+  // dropped entirely (Export ZIP JSON covers the raw data).
+  let adv = sitePriorityV21HTML(row);
+  adv += baselineMarketV20HTML(row, validationDisplay, val, enriched);
+  if (row.historical_status==="has_allcpr_history"){
+    const mix=row.historical_course_mix||{};
+    adv += `<h3>${t("provenAllcprDemand")}</h3>`
+      + `<div class="muted">${t("realHistoryAttached")}</div>`
+      + (row.calibration_note?`<div class="plain-line">${esc(row.calibration_note)}</div>`:``)
+      + [[t("provenDemandScore"),row.proven_demand_score==null?"—":fmt(row.proven_demand_score)+"/100"],
+        [t("classCount"),row.proven_class_count!=null?num(row.proven_class_count):"—"],
+        [t("avgStudents"),row.proven_avg_students!=null?fmt(row.proven_avg_students):"—"],
+        [t("fillRate"),row.proven_fill_rate!=null?fmt(row.proven_fill_rate)+"%":"—"],
+        [t("totalStudents"),row.proven_total_students!=null?num(row.proven_total_students):"—"],
+        [t("bestHistoricalCourse"),esc(row.best_historical_course||"—")],
+        [t("courseMix"),Object.keys(mix).length?Object.entries(mix).map(([k,v])=>`${k}: ${Math.round((v||0)*100)}%`).join(" · "):"—"]]
+        .map(([l,v])=>`<div class="metric-row"><span>${esc(l)}</span><span>${v}</span></div>`).join("");
+  }
+  const present = ENRICH_FIELDS.filter(([k])=>row[k]!=null);
+  if (present.length){
+    adv += `<h3>${t("enrichmentData")}</h3>`
+      + present.map(([k,l,f])=>`<div class="metric-row"><span>${esc(ui(l))}</span><span>${esc(f(row[k]))}</span></div>`).join("");
+    if (row.enrichment_sources&&row.enrichment_sources.length) adv += `<div class="muted" style="margin-top:6px;font-size:.8rem;">${t("sources")}: ${esc(row.enrichment_sources.join(", "))}</div>`;
+    if (row.enrichment_updated_at) adv += `<div class="muted" style="font-size:.8rem;">${t("updated")}: ${esc(row.enrichment_updated_at)}</div>`;
+  }
+  if (adv) h += `<details class="adv-wrap"><summary>${t("gAdvanced")}</summary>${adv}</details>`;
+  h += opsPanelPlaceholderHTML();
+  $("detail-card").innerHTML = h;
+  loadOperatingReadiness(row.zip);
+}
+
+// ---------- Operating Readiness (expansion-ops layer) ----------
+const OPS_INSTRUCTOR_STATUSES = ["NEW","NEEDS_REVIEW","CONTACTED","REPLIED","INTERESTED","NOT_INTERESTED","CREDENTIAL_VERIFIED","RATE_TOO_HIGH","AVAILABLE","CONFIRMED","REJECTED"];
+const OPS_SPACE_STATUSES = ["NEW","NEEDS_REVIEW","CONTACTED","REPLIED","AVAILABLE","TOO_EXPENSIVE","BAD_FLOOR_SPACE","NO_WEEKEND_ACCESS","GOOD_FIT","CONFIRMED","REJECTED"];
+function opsPanelPlaceholderHTML(){
+  return `<div id="ops-readiness-card" style="margin-top:10px;"><details open><summary>${t("opsPanelTitle")}</summary><p class="muted">${t("opsLoading")}</p></details></div>`;
+}
+function opsBandChip(label, score){
+  const key = String(label||"").toLowerCase();
+  const cls = key==="strong" ? "go" : key==="medium" ? "warn" : "";
+  const val = score==null ? "—" : `${fmt(score)}`;
+  return `<span class="badge ${cls==="go"?"commercial":cls==="warn"?"tier":"model"}">${esc(ui(label||"No Signal"))} · ${val}</span>`;
+}
+const OPS_STAGE_KEYS = {"Confirmed":"opsStageConfirmed","Candidate Found":"opsStageCandidateFound","Signal Only":"opsStageSignalOnly","No Signal":"opsStageNoSignal","Blocked":"opsStageBlocked"};
+function opsStageChip(stage, score){
+  // Lead-stage wording: honest about whether a score is backed by a real
+  // candidate or only public signals.
+  const label = OPS_STAGE_KEYS[stage] ? t(OPS_STAGE_KEYS[stage]) : (stage||t("opsStageNoSignal"));
+  const cls = stage==="Confirmed" ? "commercial" : stage==="Candidate Found" ? "tier" : "model";
+  const style = stage==="Blocked" ? ` style="background:#7a2020;"` : "";
+  return `<span class="badge ${cls}"${style}>${esc(label)} · ${score==null?"—":fmt(score)}</span>`;
+}
+function opsChecklistHTML(items){
+  if (!(items||[]).length) return "";
+  return `<h3>${t("opsChecklist")}</h3><ul class="tight" style="list-style:none;padding-left:2px;">`
+    + items.map(it=>`<li style="${it.done?"opacity:.65;":""}">${it.done?"☑":"☐"} ${esc(ui(it.label))}</li>`).join("")
+    + `</ul>`;
+}
+function opsCredentialLabel(status){
+  if (status==="VERIFIED") return t("opsConfirmed");
+  if (status==="NEEDS_VERIFICATION"||status==="EXPIRED") return t("opsNeedsVerification");
+  return t("opsSignalOnly");
+}
+function opsStatusSelectHTML(leadType, lead){
+  const statuses = leadType==="instructor" ? OPS_INSTRUCTOR_STATUSES : OPS_SPACE_STATUSES;
+  const current = lead.outreach_status || "NEW";
+  return `<select onchange="opsSetLeadStatus('${leadType}','${esc(lead.id)}',this)" title="${t("opsCrmStatus")}">`
+    + statuses.map(s=>`<option value="${s}"${s===current?" selected":""}>${esc(s.replace(/_/g," "))}</option>`).join("")
+    + `</select>`;
+}
+function opsLeadRowHTML(leadType, lead, zip){
+  const contact = [lead.organization, lead.city, lead.address].filter(Boolean).join(" · ");
+  // Real "who to contact" line: email/phone when a named lead carries them.
+  const reach = leadType==="instructor"
+    ? [lead.email?`✉ ${lead.email}`:"", lead.phone?`☎ ${lead.phone}`:""].filter(Boolean).join(" · ")
+    : "";
+  const scoreVal = leadType==="instructor" ? lead.confidence_score : lead.classroom_fit_score;
+  const reasons = (leadType==="instructor" ? lead.score_reasons : lead.fit_reasons) || [];
+  const cred = leadType==="instructor" ? ` <span class="badge model">${esc(opsCredentialLabel(lead.credential_status))}</span>` : "";
+  const flags = (lead.hard_elimination_flags||[]).length ? ` <span class="badge" style="background:#7a2020;">${esc(lead.hard_elimination_flags.join(", "))}</span>` : "";
+  return `<div class="metric-row" style="align-items:flex-start;flex-wrap:wrap;gap:4px;">`
+    + `<span style="flex:1 1 55%;"><b>${esc(lead.name||"—")}</b>${cred}${flags}`
+    + (contact?`<br><span class="muted" style="font-size:.78rem;">${esc(contact)}</span>`:``)
+    + (reach?`<br><span style="font-size:.78rem;">${esc(reach)}</span>`:``)
+    + `</span>`
+    + `<span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">`
+    + opsStatusSelectHTML(leadType, lead)
+    + `<button class="btn ghost" style="padding:2px 8px;font-size:.75rem;" onclick="opsGenerateOutreach('${leadType}','${esc(lead.id)}','${esc(zip)}')">${t("opsGenerateOutreach")}</button>`
+    + (lead.email?`<button class="btn ghost" style="padding:2px 8px;font-size:.75rem;" onclick="opsQueueOutreach('${leadType}','${esc(lead.id)}','${esc(zip)}')">${t("opsQueueOutreach")}</button>`:``)
+    + `</span>`
+    + `<div id="ops-draft-${esc(lead.id)}" style="flex-basis:100%;"></div>`
+    + `</div>`;
+}
+function opsLocalMarketHTML(market){
+  // Real competitor pricing + real 6-month student demand for the ZIP.
+  // Displayed context only — never folded into the feasibility score.
+  if (!market) return "";
+  const comp = market.competitor || {}, dem = market.demand || {};
+  if (!comp.has_data && !dem.has_data) return "";
+  let h = `<h3>${t("opsLocalMarket")}</h3>`;
+  if (dem.has_data){
+    h += `<div class="metric-row"><span>${t("opsRealDemand")}</span>`
+      + `<span><b>${fmt(dem.student_count)}</b> ${t("opsStudents")} · ${fmt(dem.class_count)} ${t("opsClasses")}`
+      + (dem.instructor_count?` · ${fmt(dem.instructor_count)} ${t("opsInstructorsWord")}`:``)+`</span></div>`;
+    if ((dem.top_courses||[]).length)
+      h += `<div class="muted" style="font-size:.76rem;">${esc(dem.top_courses.slice(0,3).join(" · "))}</div>`;
+  }
+  if (comp.has_data){
+    h += `<div class="metric-row"><span>${t("opsCompetitorSupply")}</span>`
+      + `<span><b>${fmt(comp.total_classes)}</b> ${t("opsClasses")} · ${fmt(comp.provider_count)} ${t("opsProviders")}</span></div>`;
+    h += `<table class="mini" style="width:100%;font-size:.76rem;border-collapse:collapse;"><tr class="muted">`
+      + `<td>${t("opsCourse")}</td><td>${t("opsClasses")}</td><td>${t("opsMedianPrice")}</td><td>${t("opsPriceRange")}</td></tr>`
+      + (comp.courses||[]).slice(0,4).map(c=>`<tr>`
+        + `<td>${esc(c.course_type||"—")}</td><td>${fmt(c.class_count)}</td>`
+        + `<td>${c.median_price!=null?"$"+fmt(c.median_price):"—"}</td>`
+        + `<td>${c.min_price!=null&&c.max_price!=null?"$"+fmt(c.min_price)+"–$"+fmt(c.max_price):"—"}</td></tr>`).join("")
+      + `</table>`;
+  }
+  return h;
+}
+function opsUnitEconomicsHTML(econ){
+  // Dollar-grounded break-even from the real ALLCPR cost structure.
+  if (!econ || !(econ.courses||[]).length) return "";
+  let h = `<h3>${t("opsUnitEconomics")}</h3>`;
+  h += `<div class="muted" style="font-size:.76rem;">${t("opsFixedMonthly")}: $${fmt(econ.fixed_monthly_cost)}/mo · ${t("opsBreakEvenNote")}</div>`;
+  h += `<table class="mini" style="width:100%;font-size:.76rem;border-collapse:collapse;"><tr class="muted">`
+    + `<td>${t("opsCourse")}</td><td>${t("opsPrice")}</td><td>${t("opsMargin")}</td><td>${t("opsBreakEven")}</td></tr>`
+    + econ.courses.map(c=>`<tr>`
+      + `<td>${esc(c.course_label||"—")}</td>`
+      + `<td>${c.price_per_student!=null?"$"+fmt(c.price_per_student):"—"}${c.price_source==="competitor_median"?` <span class="muted" style="font-size:.66rem;">${t("opsMkt")}</span>`:``}</td>`
+      + `<td>${c.contribution_margin_per_student!=null?"$"+fmt(c.contribution_margin_per_student):"—"}${c.contribution_margin_pct!=null?` (${fmt(c.contribution_margin_pct)}%)`:``}</td>`
+      + `<td>${c.break_even_students_per_month!=null?fmt(c.break_even_students_per_month)+"/mo":"—"}</td></tr>`).join("")
+    + `</table>`;
+  const dr = econ.demand_read;
+  if (dr && dr.easiest_break_even_students_per_month!=null){
+    const ok = dr.clears_break_even;
+    h += `<div class="reason" style="font-size:.78rem;border-left:3px solid ${ok?"#2e7d32":"#b8860b"};">`
+      + `${ok?"✅":"⚠️"} ${t("opsDemandVsBreakEven",{local:fmt(dr.local_students_per_month), be:fmt(dr.easiest_break_even_students_per_month), course:esc(dr.easiest_break_even_course), pct:fmt(dr.demand_vs_break_even_pct)})}`
+      + (dr.company_site_target_per_month?`<br><span class="muted" style="font-size:.73rem;">${t("opsCompanyTarget")}: ${fmt(dr.company_site_target_per_month)} ${t("opsStudents")}/mo (25/wk)</span>`:``)+`</div>`;
+  }
+  return h;
+}
+function operatingReadinessHTML(data){
+  const s = data.summary || {};
+  let h = `<details open><summary>${t("opsPanelTitle")}</summary>`;
+  if (s.is_priority_market) h += `<div style="margin:6px 0;"><span class="badge commercial">⭐ ${t("opsPriorityMarket")}: ${esc(s.priority_market)}</span></div>`;
+  // The one action line a non-analyst needs, then the people to contact.
+  h += `<div class="reco ${["TEST_CLASS_READY","RECURRING_CLASS_CANDIDATE","PERMANENT_CENTER_CANDIDATE"].includes(s.recommended_action)?"go":""}">${esc(ui(s.recommended_action_label||"—"))}</div>`
+    + `<div class="reason">${esc(s.explanation||"")}</div>`;
+  // Best instructor path + coverage + Manatal — loads automatically, no
+  // hidden collapsible to discover.
+  h += `<div id="ops-expansion" style="margin-top:6px;"><p class="muted">${t("opsLoading")}</p></div>`;
+  // Live search for brand-new local instructors (Google Places), front and center.
+  h += `<h3>${t("opsFindNewNearby")}</h3>`
+    + `<div style="margin:4px 0;"><button class="btn primary" onclick="opsLoadLiveLeads('${esc(data.zip)}')">${t("opsLiveSearch")}</button></div>`
+    + `<div id="ops-live-leads"></div>`;
+  // Named leads already saved in the CRM.
+  const namedInst = data.named_instructor_leads || [];
+  const instSignals = data.instructor_signal_leads || [];
+  if (namedInst.length){
+    h += `<h3>${t("opsNamedInstructors")}</h3>` + namedInst.map(l=>opsLeadRowHTML("instructor", l, data.zip)).join("");
+  }
+  const namedRooms = data.named_space_leads || [];
+  const roomSignals = data.space_signal_leads || [];
+  h += `<h3>${t("opsNamedRooms")}</h3>`;
+  h += namedRooms.length
+    ? namedRooms.map(l=>opsLeadRowHTML("space", l, data.zip)).join("")
+    : `<p class="muted">${t("opsNoNamedRooms")}</p>`;
+  // EVERYTHING analyst/process-grade folds into ONE collapsible.
+  let adv = "";
+  if (s.not_ready_notice) adv += `<div class="reason" style="border-left:3px solid #b8860b;padding-left:8px;margin:6px 0;">${esc(s.not_ready_notice)}</div>`;
+  adv += opsChecklistHTML(s.action_checklist);
+  adv += `<div class="metric-row"><span>${t("opsDemand")}</span><span>${opsBandChip(s.demand_label, s.demand_score)}</span></div>`
+    + `<div class="metric-row"><span>${t("opsAhaInstructor")}</span><span>${opsStageChip(s.aha_instructor_readiness_stage, s.aha_instructor_readiness_score)}</span></div>`
+    + `<div class="metric-row"><span>${t("opsArcInstructor")}</span><span>${opsStageChip(s.arc_instructor_readiness_stage, s.arc_instructor_readiness_score)}</span></div>`
+    + `<div class="metric-row"><span>${t("opsSpaceReadiness")}</span><span>${opsStageChip(s.classroom_readiness_stage, s.classroom_readiness_score)}</span></div>`
+    + `<div class="metric-row"><span>${t("opsFeasibility")}</span><span>${s.operating_feasibility_score!=null?fmt(s.operating_feasibility_score)+" / 100":"—"}</span></div>`;
+  adv += ((s.missing_requirements||[]).length ? `<h3>${t("opsMissing")}</h3>${bulletList(s.missing_requirements,"—")}` : "")
+    + ((s.risk_flags||[]).length ? `<h3>${t("riskFlags")}</h3>${riskChips(s.risk_flags)}` : "")
+    + ((s.next_steps||[]).length ? `<h3>${t("opsNextSteps")}</h3><ol class="tight">`+s.next_steps.map(x=>`<li>${esc(x)}</li>`).join("")+`</ol>` : "");
+  adv += opsLocalMarketHTML(data.local_market) + opsUnitEconomicsHTML(data.unit_economics);
+  if (instSignals.length){
+    adv += `<h3>${t("opsInstructorSignals")} (${instSignals.length})</h3>`
+      + instSignals.map(l=>opsLeadRowHTML("instructor", l, data.zip)).join("");
+  }
+  if (roomSignals.length){
+    adv += `<h3>${t("opsRoomSignals")} (${roomSignals.length})</h3>`
+      + roomSignals.map(l=>opsLeadRowHTML("space", l, data.zip)).join("");
+  }
+  h += `<details class="adv-wrap"><summary>${t("opsAllDetails")}</summary>${adv}</details>`;
+  // Staff-only tools: imports, sourcing helpers, and the outreach queue.
+  h += `<details class="adv-wrap" ontoggle="if(this.open)opsLoadOutreachQueue()"><summary>${t("opsStaffTools")}</summary>`
+    + `<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">`
+    + `<button class="btn ghost" onclick="opsRefreshLeads('${esc(data.zip)}')">${t("opsRefreshLeads")}</button>`
+    + `<button class="btn ghost" onclick="opsFindInstructors('${esc(data.zip)}')">${t("opsFindInstructors")}</button>`
+    + `<button class="btn ghost" onclick="opsGenerateSearchQueries('${esc(data.zip)}')">${t("opsSearchQueries")}</button>`
+    + `<button class="btn ghost" onclick="opsShowImportHelp('instructors')">${t("opsImportInstructors")}</button>`
+    + `<button class="btn ghost" onclick="opsShowImportHelp('rooms')">${t("opsImportRooms")}</button>`
+    + `</div>`
+    + `<div id="ops-extra-box" style="margin-top:6px;"></div>`
+    + `<h3>${t("opsOutreachQueueTitle")}</h3><div id="ops-outreach-queue"><p class="muted">${t("opsQueueLoading")}</p></div>`
+    + `</details>`;
+  h += `</details>`;
+  return h;
+}
+function opsShowImportHelp(kind){
+  const box = $("ops-extra-box");
+  if (box) box.innerHTML = `<div class="reason">${esc(t(kind==="instructors"?"opsImportInstructorsHelp":"opsImportRoomsHelp"))}</div>`;
+}
+async function opsGenerateSearchQueries(zip){
+  const box = $("ops-extra-box");
+  const city = window.prompt(t("opsCityPrompt"), "") || "";
+  try {
+    const params = city.trim() ? `?city=${encodeURIComponent(city.trim())}` : "";
+    const resp = await fetch(`/api/ops/zip/${encodeURIComponent(zip)}/search-queries${params}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    const row = q => `<li><a href="${esc(q.url)}" target="_blank" rel="noopener">${esc(q.query)}</a> <span class="muted" style="font-size:.75rem;">— ${esc(q.purpose)}</span></li>`;
+    if (box) box.innerHTML = `<div class="reason"><b>${t("opsSearchQueriesHelp")}</b>`
+      + `<h3>${t("opsNamedInstructors")}</h3><ul class="tight">${(data.instructor_queries||[]).map(row).join("")}`
+      + `<li><a href="${esc(data.linkedin_people_search.url)}" target="_blank" rel="noopener">LinkedIn: ${esc(data.linkedin_people_search.query)}</a></li></ul>`
+      + `<h3>${t("opsNamedRooms")}</h3><ul class="tight">${(data.space_queries||[]).map(row).join("")}</ul>`
+      + `<div class="muted" style="font-size:.75rem;">${esc(data.note||"")}</div></div>`;
+  } catch (err) {
+    if (box) box.innerHTML = `<p class="muted">${t("opsUnavailable",{error:esc(String(err&&err.message||err))})}</p>`;
+  }
+}
+const OPS_SOURCING_COURSES = [["AHA_BLS","AHA BLS"],["ARC_BLS","ARC BLS"],["ARC_CPR_FA_AED","ARC CPR/FA/AED"]];
+function opsFindInstructors(zip){
+  // Course picker → performance-based, eligibility-aware sourcing plan.
+  const box = $("ops-extra-box");
+  if (!box) return;
+  box.innerHTML = `<div class="reason"><b>${t("opsFindInstructors")}</b>`
+    + `<div class="muted" style="font-size:.78rem;">${t("opsFindInstructorsHelp")}</div>`
+    + `<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">`
+    + OPS_SOURCING_COURSES.map(c=>`<button class="btn ghost" style="font-size:.75rem;" onclick="opsLoadSourcing('${esc(zip)}','${c[0]}')">${esc(c[1])}</button>`).join("")
+    + `</div><div id="ops-sourcing-body" style="margin-top:6px;"></div></div>`;
+}
+function opsCandListHTML(cands){
+  if (!(cands||[]).length) return `<p class="muted" style="font-size:.78rem;">${t("opsNoneYet")}</p>`;
+  return `<ul class="tight" style="font-size:.8rem;">` + cands.map(c=>{
+    const loc = [c.home_city, c.home_state].filter(Boolean).join(", ");
+    const near = c.near_target_area ? ` <span class="badge commercial" style="font-size:.68rem;">${t("opsNearArea")}</span>` : "";
+    const grade = c.company_grade && c.company_grade!=="—" ? ` <span class="badge tier" style="font-size:.68rem;">${esc(c.company_grade)}</span>` : "";
+    const courses = (c.proven_courses||[]).map(x=>x.replace("ARC_CPR_FA_AED","ARC CPR").replace("_"," ")).join(", ");
+    return `<li><b>${esc(c.name)}</b>${grade}${near} <span class="muted">· ${t("opsScore")} ${fmt(c.performance_score)} · ${fmt(c.students_6mo)} ${t("opsStudents")} · ${c.students_per_class!=null?fmt(c.students_per_class)+"/"+t("opsClassWord"):""}</span>`
+      + (loc?`<br><span class="muted" style="font-size:.72rem;">${esc(loc)} · ${esc(courses)}</span>`:`<br><span class="muted" style="font-size:.72rem;">${esc(courses)}</span>`)+`</li>`;
+  }).join("") + `</ul>`;
+}
+function opsIndeedPlanHTML(ip){
+  if (!ip) return "";
+  const rec = ip.recommendation||{};
+  const prClass = rec.priority==="high" ? "commercial" : rec.priority==="medium" ? "tier" : "model";
+  let h = `<h3>${t("opsIndeedPlan")} <span class="badge ${prClass}" style="font-size:.68rem;">${t("opsPriority")}: ${esc(rec.priority||"—")}</span></h3>`;
+  h += `<div style="font-size:.78rem;">📋 <b>${esc(ip.job_title||"")}</b> @ ${esc(ip.location_to_set||"—")} — ${esc(ip.posting_action_label||"")}</div>`;
+  if ((rec.reasons||[]).length) h += `<div class="muted" style="font-size:.73rem;">${esc(rec.reasons.join(" · "))}</div>`;
+  if (ip.sponsor){
+    const sp = ip.sponsor;
+    h += `<div class="reason" style="font-size:.75rem;">💲 ${t("opsSponsor")}: $${fmt(sp.min_daily_usd)}/day × ${fmt(sp.round_days)} ${t("opsDays")} ≈ $${fmt(sp.estimated_min_cost_usd)} min. `
+      + `${t("opsSponsorEmail")}: ${esc((sp.approval_email||{}).to||"")} (cc ${esc(((sp.approval_email||{}).cc||[]).length)}). `
+      + `${t("opsInclude")}: ${esc(((sp.approval_email||{}).required_fields||[]).join(", "))}.</div>`;
+  }
+  h += `<div class="muted" style="font-size:.72rem;">${esc(ip.screening_line||"")} · ${esc(ip.repost_cadence||"")}</div>`;
+  return h;
+}
+async function opsLoadLiveLeads(zip){
+  // Live external lead search — real CPR businesses / providers near the ZIP.
+  const box = $("ops-live-leads");
+  if (box) box.innerHTML = `<p class="muted" style="font-size:.78rem;">${t("opsLiveSearching")}</p>`;
+  try {
+    const resp = await fetch(`/api/ops/live-instructor-leads?zip=${encodeURIComponent(zip)}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const d = await resp.json();
+    let h = `<div class="muted" style="font-size:.73rem;">${t("opsLiveSources")}: ${esc((d.sources_used||[]).join(", ")||"—")}${d.note?` · ${esc(d.note)}`:``}</div>`;
+    if (!(d.leads||[]).length){
+      h += `<p class="muted" style="font-size:.78rem;">${t("opsNoneYet")}</p>`;
+    } else {
+      h += `<ul class="tight" style="font-size:.8rem;">` + d.leads.map(l=>{
+        const contact = [l.phone, l.address].filter(Boolean).join(" · ");
+        const name = l.url ? `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.name)}</a>` : `<b>${esc(l.name)}</b>`;
+        const rating = l.rating!=null ? ` <span class="muted" style="font-size:.7rem;">★${fmt(l.rating)}${l.review_count?`(${fmt(l.review_count)})`:``}</span>` : "";
+        const dist = l.distance_miles!=null ? ` <span class="muted" style="font-size:.7rem;">${fmt(l.distance_miles)}mi</span>` : "";
+        return `<li>${name}${rating}${dist} <span class="badge model" style="font-size:.66rem;">${esc((l.source||"").replace("_"," "))}</span>`
+          + (contact?`<br><span class="muted" style="font-size:.73rem;">${esc(contact)}</span>`:``)+`</li>`;
+      }).join("") + `</ul>`;
+    }
+    if (box) box.innerHTML = h;
+  } catch (err) {
+    if (box) box.innerHTML = `<p class="muted">${t("opsUnavailable",{error:esc(String(err&&err.message||err))})}</p>`;
+  }
+}
+async function opsLoadSourcing(zip, course){
+  const body = $("ops-sourcing-body");
+  if (body) body.innerHTML = `<p class="muted">${t("opsLoading")}</p>`;
+  try {
+    const resp = await fetch(`/api/ops/instructor-sourcing?course=${encodeURIComponent(course)}&zip=${encodeURIComponent(zip||"")}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const d = await resp.json();
+    const el = d.eligibility||{}, prof = d.target_profile||{};
+    const mix = prof.credential_mix||{};
+    let h = `<div class="metric-row"><span><b>${esc(d.course_label)}</b> — ${t("opsMustHold")}</span><span class="badge model">${esc(el.credential||"—")}</span></div>`;
+    h += `<div class="muted" style="font-size:.76rem;">${esc(el.issuing_body||"")} · ${t("opsValid")} ${esc(el.validity||"")}</div>`;
+    if (prof.sample_size){
+      h += `<div class="muted" style="font-size:.78rem;margin-top:4px;">${t("opsBenchmark")}: ~${fmt(prof.benchmark_students_per_class)} ${t("opsStudents")}/${t("opsClassWord")}, ~${fmt(prof.benchmark_students_6mo)} ${t("opsStudents")}/6mo · ${t("opsCredMix")}: AHA ${mix.aha||0} / ARC ${mix.arc||0} / ${t("opsBoth")} ${mix.both||0}</div>`;
+    }
+    h += `<h3>${t("opsActivate")} <span class="muted" style="font-weight:normal;font-size:.75rem;">— ${esc((d.activate_existing||{}).note||"")}</span></h3>`;
+    h += opsCandListHTML((d.activate_existing||{}).candidates);
+    h += `<h3>${t("opsBridge")} <span class="muted" style="font-weight:normal;font-size:.75rem;">— ${esc((d.bridge_candidates||{}).note||"")}</span></h3>`;
+    h += opsCandListHTML((d.bridge_candidates||{}).candidates);
+    if (el.bridge) h += `<div class="reason" style="font-size:.76rem;">🔁 ${esc(el.bridge)}</div>`;
+    if (el.allcpr_role_note) h += `<div class="muted" style="font-size:.74rem;">🏫 ${esc(el.allcpr_role_note)}</div>`;
+    // Screening bar.
+    const sc = d.screening||{}, eq = sc.equipment_required||{};
+    if (eq.adult_manikins) h += `<div class="muted" style="font-size:.76rem;margin-top:4px;">✅ ${t("opsScreening")}: ${eq.adult_manikins}×${t("opsAdult")}/${eq.infant_manikins}×${t("opsInfant")}/${eq.aed_trainers}×AED ${t("opsManikinSets")} (${eq.minimum_acceptable_sets} ${t("opsOk")}) · ${esc(sc.interview_policy||"")}</div>`;
+    // Indeed posting plan.
+    h += opsIndeedPlanHTML(d.external_sourcing && d.external_sourcing.indeed_plan);
+    h += `<h3>${t("opsSourceExternal")}</h3>`;
+    h += `<div style="margin:4px 0;"><button class="btn ghost" style="font-size:.75rem;" onclick="opsLoadLiveLeads('${esc(zip)}')">${t("opsLiveSearch")}</button></div>`;
+    h += `<div id="ops-live-leads"></div>`;
+    h += `<ul class="tight" style="font-size:.78rem;">` + ((d.external_sourcing||{}).queries||[]).map(qq=>{
+      const url = `https://www.google.com/search?q=${encodeURIComponent(qq.query)}`;
+      return `<li><a href="${esc(url)}" target="_blank" rel="noopener">${esc(qq.query)}</a> <span class="muted" style="font-size:.72rem;">— ${esc(qq.label)}</span></li>`;
+    }).join("") + `</ul>`;
+    if (body) body.innerHTML = h;
+  } catch (err) {
+    if (body) body.innerHTML = `<p class="muted">${t("opsUnavailable",{error:esc(String(err&&err.message||err))})}</p>`;
+  }
+}
+async function loadOperatingReadiness(zip){
+  const box = $("ops-readiness-card");
+  if (!box || !zip) return;
+  try {
+    const resp = await fetch(`/api/ops/zip/${encodeURIComponent(zip)}/readiness`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    box.innerHTML = operatingReadinessHTML(data);
+    opsLoadExpansion(zip);
+  } catch (err) {
+    box.innerHTML = `<details open><summary>${t("opsPanelTitle")}</summary><p class="muted">${t("opsUnavailable",{error:esc(String(err&&err.message||err))})}</p></details>`;
+  }
+}
+async function opsRefreshLeads(zip){
+  try {
+    const resp = await fetch(`/api/ops/zip/${encodeURIComponent(zip)}/refresh?force=true`, {method:"POST"});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    setStatus(t("opsRefreshDone"));
+    await loadOperatingReadiness(zip);
+  } catch (err) { setStatus(t("opsRefreshFailed",{error:String(err&&err.message||err)})); }
+}
+async function opsSetLeadStatus(leadType, leadId, sel){
+  try {
+    const resp = await fetch(`/api/ops/leads/${leadType}/${encodeURIComponent(leadId)}/status`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({status:sel.value})});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    setStatus(t("opsStatusSaved"));
+  } catch (err) { setStatus(t("opsStatusFailed",{error:String(err&&err.message||err)})); }
+}
+async function opsGenerateOutreach(leadType, leadId, zip){
+  const box = $(`ops-draft-${leadId}`);
+  try {
+    const resp = await fetch(`/api/ops/outreach/generate`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({lead_type:leadType, lead_id:leadId, zip:zip})});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    const text = `Subject: ${data.draft.subject}\n\n${data.draft.body}`;
+    if (box) box.innerHTML = `<div class="reason" style="margin-top:4px;"><b>${t("opsDraftReady")}</b>`
+      + `<pre class="raw" style="white-space:pre-wrap;">${esc(text)}</pre>`
+      + `<button class="btn ghost" style="padding:2px 8px;font-size:.75rem;" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent).then(()=>setStatus(t('opsCopied')))">${t("opsCopyDraft")}</button></div>`;
+  } catch (err) {
+    if (box) box.innerHTML = `<p class="muted">${t("opsUnavailable",{error:esc(String(err&&err.message||err))})}</p>`;
+  }
+}
+// ---------- Outreach engine (approval queue, follow-ups, replies) ----------
+async function opsQueueOutreach(leadType, leadId, zip){
+  try {
+    const resp = await fetch(`/api/ops/outreach/queue`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({lead_type:leadType, lead_id:leadId, zip:zip})});
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message||data.error||`HTTP ${resp.status}`);
+    setStatus(data.message||t("opsQueued"));
+    opsLoadOutreachQueue(true);
+  } catch (err) { setStatus(t("opsUnavailable",{error:String(err&&err.message||err)})); }
+}
+function opsSeqRowHTML(v, showCancel){
+  const blocked = v.placeholder_blocked ? ` <span class="badge" style="background:#7a2020;">${t("opsQueueBlocked")}: ${esc(v.placeholder_blocked)}</span>` : "";
+  const touch = v.touch_count ? ` · ${t("opsTouch")} ${v.touch_count}` : "";
+  const next = v.next_touch_at ? ` · ${t("opsNextTouch")} ${esc(String(v.next_touch_at).slice(0,10))}` : "";
+  return `<div class="metric-row" style="flex-wrap:wrap;gap:4px;">`
+    + `<span style="flex:1 1 60%;"><b>${esc(v.lead_name||v.lead_id)}</b>${blocked}`
+    + `<br><span class="muted" style="font-size:.75rem;">✉ ${esc(v.to_email)} · ${esc(v.subject||"")}${touch}${next}</span></span>`
+    + `<span style="display:flex;gap:6px;align-items:center;">`
+    + `<span class="badge model" style="font-size:.68rem;">${esc(v.status)}</span>`
+    + (showCancel?`<button class="btn ghost" style="padding:2px 8px;font-size:.72rem;" onclick="opsCancelOutreach('${esc(v.lead_id)}')">${t("opsQueueCancel")}</button>`:``)
+    + `</span></div>`;
+}
+// ---------- Expansion ops (instructor path + coverage + Manatal) ----------
+// Dangerous writes may be locked by OPS_WRITE_TOKEN; prompt once on 401.
+let _opsWriteToken = sessionStorage.getItem("opsWriteToken") || "";
+async function dangerFetch(url, opts){
+  opts = opts || {};
+  const go = () => _opsWriteToken
+    ? fetch(url, Object.assign({}, opts, {headers:Object.assign(
+        {}, opts.headers||{}, {"X-Ops-Write-Token":_opsWriteToken})}))
+    : fetch(url, opts);
+  let resp = await go();
+  if (resp.status === 401){
+    const tk = prompt(t("opsWriteTokenPrompt"));
+    if (tk === null || tk === "") return resp;
+    _opsWriteToken = tk; sessionStorage.setItem("opsWriteToken", tk);
+    resp = await go();
+    if (resp.status === 401){ _opsWriteToken=""; sessionStorage.removeItem("opsWriteToken"); }
+  }
+  return resp;
+}
+async function opsLoadExpansion(zip){
+  const box = $("ops-expansion");
+  if (!box) return;
+  try {
+    const [mRes, cRes, manRes] = await Promise.all([
+      fetch(`/api/ops/zip/${encodeURIComponent(zip)}/instructor-match`),
+      fetch(`/api/ops/zip/${encodeURIComponent(zip)}/site-coverage`),
+      fetch(`/api/ops/manatal/status`),
+    ]);
+    box.innerHTML = opsExpansionHTML(zip, await mRes.json(), await cRes.json(),
+                                     await manRes.json());
+    opsLoadAhaInstructors(zip);
+  } catch (err) {
+    box.innerHTML = `<p class="muted">${t("opsUnavailable",{error:esc(String(err&&err.message||err))})}</p>`;
+  }
+}
+// Live AHA Atlas instructor leads: auto-fetched on ZIP open, persisted into the
+// lead store server-side, and one-click draftable into the approval queue.
+async function opsLoadAhaInstructors(zip){
+  const box = $("ops-aha-leads");
+  if (!box) return;
+  try {
+    const resp = await fetch(`/api/ops/zip/${encodeURIComponent(zip)}/aha-instructors`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const d = await resp.json();
+    const leads = d.leads || [];
+    let h = `<div class="muted" style="font-size:.72rem;">${esc(d.note||"")}</div>`;
+    if (!leads.length){
+      h += `<p class="muted" style="font-size:.78rem;">${t("opsAhaNone")}</p>`;
+      box.innerHTML = h; return;
+    }
+    const withEmail = leads.filter(l=>l.email).length;
+    h += `<div style="margin:6px 0;"><button class="btn" style="font-size:.78rem;" onclick="opsAhaDraftAll('${esc(zip)}')">${t("opsAhaDraftAll")} (${withEmail})</button></div>`;
+    h += leads.map(l=>{
+      const contact = [l.phone, l.email].filter(Boolean).join(" · ");
+      const dist = l.distance_miles!=null ? ` <span class="muted" style="font-size:.7rem;">${fmt(l.distance_miles)} mi</span>` : "";
+      const addr = l.city ? ` <span class="muted" style="font-size:.7rem;">${esc([l.city,l.state].filter(Boolean).join(", "))}</span>` : "";
+      const draftBtn = l.email && l.id
+        ? `<button class="btn ghost" style="padding:2px 8px;font-size:.72rem;" onclick="opsQueueOutreach('INSTRUCTOR','${esc(l.id)}','${esc(zip)}')">${t("opsAhaQueue")}</button>`
+        : "";
+      const push = l.id ? `<button class="btn ghost" style="padding:2px 8px;font-size:.72rem;" onclick="opsPushToManatal('${esc(l.id)}','${esc(zip)}')">${t("opsPushLead")}</button>` : "";
+      return `<div class="metric-row" style="flex-wrap:wrap;gap:4px;align-items:center;">`
+        + `<span style="flex:1 1 60%;"><b>${esc(l.name||"—")}</b> <span class="badge model" style="font-size:.64rem;">AHA</span>${dist}${addr}`
+        + (contact?`<br><span class="muted" style="font-size:.73rem;">${esc(contact)}</span>`:`<br><span class="muted" style="font-size:.72rem;">no contact info</span>`)+`</span>`
+        + `<span style="display:flex;gap:6px;">${draftBtn}${push}</span></div>`;
+    }).join("");
+    h += `<div class="muted" style="font-size:.7rem;margin-top:4px;">${t("opsAhaNote")}</div>`;
+    box.innerHTML = h;
+  } catch (err) {
+    box.innerHTML = `<p class="muted" style="font-size:.78rem;">${t("opsAhaFetchFail",{error:esc(String(err&&err.message||err))})}</p>`;
+  }
+}
+async function opsAhaDraftAll(zip){
+  setStatus(t("opsAhaDrafting"));
+  try {
+    const resp = await fetch(`/api/ops/zip/${encodeURIComponent(zip)}/aha-instructors/draft-all`, {
+      method:"POST", headers:{"Content-Type":"application/json"}, body:"{}"});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const d = await resp.json();
+    setStatus(t("opsAhaDrafted",{queued:d.queued_count||0, skipped:d.skipped_count||0}));
+    opsLoadOutreachQueue(true);
+  } catch (err) { setStatus(t("opsAhaFetchFail",{error:String(err&&err.message||err)})); }
+}
+function opsExpansionHTML(zip, match, cov, man){
+  let h = `<h3>${t("opsBestPath")}</h3>`;
+  const path = (match && match.best_instructor_path) || [];
+  if (match && match.recommended_action_label){
+    h += `<div class="reason" style="border-left:3px solid #2f7a3a;padding-left:8px;"><b>${esc(match.recommended_action_label)}</b><br><span class="muted" style="font-size:.8rem;">${esc(match.explanation||"")}</span></div>`;
+  }
+  h += path.length ? path.slice(0,3).map(p=>`<div class="metric-row" style="flex-wrap:wrap;gap:4px;align-items:center;">`
+    + `<span style="flex:1 1 60%;"><b>${esc(p.name||"—")}</b> <span class="badge model" style="font-size:.66rem;">${esc(p.lead_level_label||"")}</span>`
+    + (p.distance_miles?` <span class="muted" style="font-size:.74rem;">${esc(p.distance_miles)} mi</span>`:"")
+    + `</span>`
+    + (p.id?`<button class="btn ghost" style="padding:2px 8px;font-size:.72rem;" onclick="opsPushToManatal('${esc(p.id)}','${esc(zip)}')">${t("opsPushLead")}</button>`:"")
+    + `</div>`).join("") : `<p class="muted">${t("opsNoNamed")}</p>`;
+  // Live AHA Atlas instructor leads — fetched async into this container.
+  h += `<h3 style="margin-top:10px;">${t("opsAhaTitle")}</h3>`
+    + `<div id="ops-aha-leads"><p class="muted" style="font-size:.78rem;">${t("opsAhaSearching")}</p></div>`;
+  // Site coverage only appears when there is a real decision to show.
+  if (cov && cov.coverage_decision_label){
+    h += `<h3>${t("opsSiteCoverage")}</h3>`
+      + `<div class="reason" style="border-left:3px solid #b8860b;padding-left:8px;"><b>${esc(cov.coverage_decision_label)}</b><br><span class="muted" style="font-size:.8rem;">${esc(cov.explanation||"")}</span></div>`;
+    const near = cov.nearest_active_site;
+    if (near) h += `<div class="metric-row"><span>${t("opsNearestSite")}: <b>${esc(near.name||"—")}</b>${near.distance_miles!=null?" · "+esc(near.distance_miles)+" mi":""}${near.health_label?" · "+esc(near.health_label):""}</span></div>`;
+    (cov.warnings||[]).forEach(w=>{ h += `<div class="muted" style="color:#b04a2f;font-size:.76rem;">⚠ ${esc(w)}</div>`; });
+  }
+  const mode = (man && man.mode) || "DISABLED";
+  _opsManatalMode = mode;
+  // Manatal controls only appear when the connector is actually on — a
+  // "disabled" notice is noise for non-staff users.
+  if (mode !== "DISABLED"){
+    h += `<h3>${t("opsManatal")}</h3>`
+      + `<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">`
+      + `<button class="btn ghost" onclick="opsManatalPushTop('${esc(zip)}')">${t("opsPushTop")}</button>`
+      + `<button class="btn ghost" onclick="opsManatalSync('${esc(zip)}')">${t("opsSyncManatal")}</button></div>`;
+  }
+  h += `<div id="ops-expansion-result" style="margin-top:6px;"></div>`;
+  return h;
+}
+let _opsManatalMode = "DISABLED";
+async function _opsConfirmManatalWrite(){
+  // Re-check the CURRENT mode first — the panel's cached value goes stale if
+  // write is toggled in Render after it rendered — then ALWAYS show a confirm
+  // dialog, worded for the real mode (live vs dry-run).
+  try { const r = await fetch('/api/ops/manatal/status'); const s = await r.json(); if (s && s.mode) _opsManatalMode = s.mode; } catch(e){}
+  return confirm(_opsManatalMode === "LIVE_WRITE" ? t("opsManatalConfirmLive") : t("opsManatalConfirmDry"));
+}
+async function opsPushToManatal(leadId, zip){ if(await _opsConfirmManatalWrite()) await _opsExpAction(`/api/ops/manatal/candidates/push`, {lead_id:leadId, zip:zip}); }
+async function opsManatalPushTop(zip){ if(await _opsConfirmManatalWrite()) await _opsExpAction(`/api/ops/manatal/zip/${encodeURIComponent(zip)}/push-top-leads`, {}); }
+async function _opsExpAction(url, body){
+  const box = $("ops-expansion-result");
+  try {
+    const resp = await dangerFetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+    const data = await resp.json();
+    let msg, color = "#2f7a3a";
+    if (data.disabled){ msg = t("opsManatalDisabled"); color = "#b8860b"; }
+    else if (data.dry_run){ msg = t("opsManatalDryRun"); color = "#b8860b"; }
+    else if (data.ok){
+      msg = data.manatal_candidate_id
+        ? t("opsManatalCreated",{id:String(data.manatal_candidate_id)})
+        : t("opsManatalOk");
+      if (data.manatal_job_id){
+        msg += " · " + t(data.job_reused ? "opsManatalJobReused" : "opsManatalJobNew",
+                         {id:String(data.manatal_job_id)});
+      }
+    } else {
+      msg = t("opsManatalError",{code:String(data.status_code||resp.status||"?"),
+        message:String(data.message||data.error||"error")});
+      color = "#b04a2f";
+    }
+    if (box) box.innerHTML = `<div class="reason" style="border-left:3px solid ${color};padding-left:8px;"><b>${esc(msg)}</b></div>`;
+    alert(msg);
+  } catch(err){
+    const msg = t("opsUnavailable",{error:String(err&&err.message||err)});
+    if (box) box.innerHTML = `<p class="muted">${esc(msg)}</p>`;
+    alert(msg);
+  }
+}
+async function opsManatalSync(zip){
+  const box = $("ops-expansion-result");
+  try {
+    const resp = await fetch(`/api/ops/manatal/zip/${encodeURIComponent(zip)}/sync-status`);
+    const data = await resp.json();
+    const msg = data.disabled ? t("opsManatalDisabled") : `${t("opsManatalSynced")}: ${(data.synced||[]).length}`;
+    if (box) box.innerHTML = `<div class="reason">${esc(msg)}</div>`;
+  } catch(err){ if (box) box.innerHTML = `<p class="muted">${t("opsUnavailable",{error:esc(String(err&&err.message||err))})}</p>`; }
+}
+async function opsLoadOutreachQueue(quiet){
+  const box = $("ops-outreach-queue");
+  if (!box) return;
+  try {
+    const resp = await fetch(`/api/ops/outreach/queue`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const q = await resp.json();
+    const eng = q.engine||{};
+    const live = eng.mode==="LIVE";
+    let h = `<div class="reason" style="border-left:3px solid ${live?"#2f7a3a":"#b8860b"};padding-left:8px;">`
+      + `${live?"🟢 "+t("opsEngineLive"):"🟡 "+t("opsEngineDryRun")}`
+      + `<br><span class="muted" style="font-size:.73rem;">${t("opsSendsToday")}: ${fmt(q.sends_today)} / ${fmt(eng.daily_cap)} · ${t("opsFollowUpsAt")}: +${(eng.follow_up_days||[]).join("d, +")}d</span></div>`;
+    const pending = q.pending_approval||[];
+    h += `<h3>${t("opsQueuePending")} (${pending.length})</h3>`;
+    h += pending.length ? pending.map(v=>opsSeqRowHTML(v,true)).join("") : `<p class="muted" style="font-size:.78rem;">${t("opsQueueEmpty")}</p>`;
+    if (pending.length){
+      h += `<div style="margin:6px 0;"><button class="btn" onclick="opsApproveOutreach()">${t("opsApproveAll")} (${pending.filter(v=>!v.placeholder_blocked).length})</button></div>`;
+    }
+    const active = q.active_sequences||[];
+    if (active.length) h += `<h3>${t("opsQueueActive")} (${active.length})</h3>` + active.map(v=>opsSeqRowHTML(v,true)).join("");
+    const done = q.recently_finished||[];
+    if (done.length) h += `<h3>${t("opsQueueFinished")}</h3>` + done.slice(0,8).map(v=>opsSeqRowHTML(v,false)).join("");
+    h += `<div style="margin-top:6px;"><button class="btn ghost" onclick="opsOutreachTick()">${t("opsRunTick")}</button></div>`;
+    box.innerHTML = h;
+  } catch (err) {
+    if (!quiet) box.innerHTML = `<p class="muted">${t("opsUnavailable",{error:esc(String(err&&err.message||err))})}</p>`;
+  }
+}
+async function opsApproveOutreach(){
+  try {
+    const resp = await dangerFetch(`/api/ops/outreach/approve`, {method:"POST",
+      headers:{"Content-Type":"application/json"}, body:"{}"});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const r = await resp.json();
+    setStatus(t("opsApproveResult",{sent:(r.sent||[]).length, dry:(r.dry_run||[]).length, blocked:(r.blocked||[]).length}));
+    opsLoadOutreachQueue(true);
+  } catch (err) { setStatus(t("opsUnavailable",{error:String(err&&err.message||err)})); }
+}
+async function opsOutreachTick(){
+  try {
+    const resp = await dangerFetch(`/api/ops/outreach/tick`, {method:"POST"});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const r = await resp.json();
+    setStatus(t("opsTickResult",{replies:(r.replied||[]).length, fu:(r.followed_up||[]).length}));
+    opsLoadOutreachQueue(true);
+  } catch (err) { setStatus(t("opsUnavailable",{error:String(err&&err.message||err)})); }
+}
+async function opsCancelOutreach(leadId){
+  try {
+    const resp = await fetch(`/api/ops/outreach/queue/${encodeURIComponent(leadId)}/cancel`, {method:"POST"});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    setStatus(t("opsQueueCancelled"));
+    opsLoadOutreachQueue(true);
+  } catch (err) { setStatus(t("opsUnavailable",{error:String(err&&err.message||err)})); }
+}
+
+// ---------- Comparison ----------
+function selectedSnapshot(){
+  if (!S.selected) return null;
+  if (S.selected.layer==="historical"){ const r=histByZip(S.selected.zip); if (!r) return null;
+    return { layer:"historical", zip:r.zip, tier:"historical", overall:num(r.demand_score),
+      aha:num(r.aha_bls_students), arc_bls:num(r.arc_bls_students), arc_cpr:num(r.arc_cpr_students),
+      class_count:num(r.class_count), avg_students:num(r.avg_students), fill_rate:num(r.fill_rate),
+      confidence:r.confidence||"—", commercial:r.commercial||null,
+      proven_demand_score:r.proven_demand_score==null?null:num(r.proven_demand_score), historical_confidence:r.historical_confidence||"—",
+      best_historical_course:r.best_historical_course||"—", model_agreement:r.model_agreement||"—",
+      model_error:r.model_error==null?null:num(r.model_error) }; }
+  const r=modeledByZip(S.selected.zip); if (!r) return null;
+  return { layer:"modeled", zip:r.zip, tier:(r.tier==="enriched"||r.enrichment_tier)?"enriched":"baseline",
+    overall:num(r.overall), aha:num(r.bls_demand), arc_bls:num(r.bls_demand), arc_cpr:num(r.cpr_demand),
+    class_count:null, avg_students:null, fill_rate:null, confidence:r.data_confidence||"—", commercial:r.commercial||null,
+    proven_demand_score:r.proven_demand_score==null?null:num(r.proven_demand_score), historical_confidence:r.historical_confidence||"—",
+    best_historical_course:r.best_historical_course||"—", model_agreement:r.model_agreement||"—",
+    model_error:r.model_error==null?null:num(r.model_error),
+    validation_tier:r.validation_tier||null };
+}
+function addCompare(){
+  const snap=selectedSnapshot(); if (!snap){ setStatus(t("selectZipFirst")); return; }
+  if (S.comparison.some(s=>s.layer===snap.layer && s.zip===snap.zip)){ setStatus(t("alreadyComparison", {zip:snap.zip})); switchTab("compare"); return; }
+  if (S.comparison.length>=MAX_COMPARE){ setStatus(t("comparisonFull", {max:MAX_COMPARE})); switchTab("compare"); return; }
+  S.comparison.push(snap); renderComparison(); switchTab("compare"); setStatus(t("addedComparison", {zip:snap.zip}));
+}
+function removeCompare(i){ S.comparison.splice(i,1); renderComparison(); }
+function clearCompare(){ S.comparison=[]; renderComparison(); }
+function compareCourseValue(s){ // selected-course value for current mode
+  if (S.mode==="overall") return s.overall;
+  if (S.mode==="aha_bls") return s.aha;
+  if (S.mode==="arc_bls") return s.arc_bls;
+  return s.arc_cpr;
+}
+function compareDecision(s){
+  if (s.layer==="modeled" && s.validation_tier) return s.validation_tier;
+  const cv=compareCourseValue(s);
+  const cnorm = s.layer==="modeled" ? cv/100 : (histMax(S.mode)>0?cv/histMax(S.mode):0);
+  return decideJS(s.layer, s.overall, cnorm, s.confidence, s.commercial, s.tier==="enriched"?"enriched":null, s).label;
+}
+function tierBadgeHTML(s){
+  if (s.layer==="historical") return `<span class="badge hist">${t("historical")}</span>`;
+  return s.tier==="enriched" ? `<span class="badge tier">${t("enriched")}</span>` : `<span class="badge model">${t("modeled")}</span>`;
+}
+function renderComparison(){
+  const n=S.comparison.length;
+  const pill=$("cmp-count"); pill.textContent=n; pill.style.display = n? "inline-block":"none";
+  $("cmp-export").disabled = n===0; $("cmp-clear").disabled = n===0;
+  if (!n){ $("cmp-table-wrap").innerHTML = `<p class="muted">${t("noZipsAdded")}</p>`; return; }
+  const head = ["ZIP",t("layerTier"),`${t("selected")} (${courseLabel(S.mode)})`,t("overall"),"AHA BLS","ARC BLS","ARC CPR",t("classes"),t("avgStud"),t("fillPct"),t("quality"),t("proven"),t("histConf"),t("bestHist"),t("agreement"),t("error"),t("recommendation"),t("commercial"),""];
+  let h = `<table class="cmp"><thead><tr>` + head.map(x=>`<th>${esc(x)}</th>`).join("") + `</tr></thead><tbody>`;
+  S.comparison.forEach((s,i)=>{
+    const commercial = s.commercial&&s.commercial.commercial_validated ? (s.commercial.commercial_ready?t("available"):t("validated")) : "—";
+    h += `<tr><td><b>${esc(s.zip)}</b></td><td>${tierBadgeHTML(s)}</td><td><b>${fmt(compareCourseValue(s))}</b></td>`
+      + `<td>${fmt(s.overall)}</td><td>${fmt(s.aha)}</td><td>${fmt(s.arc_bls)}</td><td>${fmt(s.arc_cpr)}</td>`
+      + `<td>${s.class_count==null?"—":s.class_count}</td><td>${s.avg_students==null?"—":fmt(s.avg_students)}</td>`
+      + `<td>${s.fill_rate==null?"—":fmt(s.fill_rate)}</td><td>${esc(s.confidence)}</td>`
+      + `<td>${s.proven_demand_score==null?"—":fmt(s.proven_demand_score)}</td><td>${esc(s.historical_confidence||"—")}</td>`
+      + `<td>${esc(s.best_historical_course||"—")}</td><td>${esc(s.model_agreement||"—")}</td><td>${s.model_error==null?"—":fmt(s.model_error)}</td>`
+      + `<td>${esc(ui(compareDecision(s)))}</td><td>${esc(commercial)}</td>`
+      + `<td><button class="btn ghost" onclick="removeCompare(${i})" title="${t("remove")}">✕</button></td></tr>`;
+  });
+  h += `</tbody></table>`;
+  $("cmp-table-wrap").innerHTML = h;
+}
+function exportCompareCSV(){
+  if (!S.comparison.length) return;
+  const cols=["zip","layer","tier","overall","aha_bls","arc_bls","arc_cpr","class_count","avg_students","fill_rate","confidence","proven_demand_score","historical_confidence","best_historical_course","model_agreement","model_error","recommendation","commercial"];
+  const lines=[cols.join(",")];
+  for (const s of S.comparison){
+    const commercial = s.commercial&&s.commercial.commercial_validated ? (s.commercial.commercial_ready?"Available":"Validated") : "";
+    const vals=[s.zip,s.layer,s.tier,s.overall,s.aha,s.arc_bls,s.arc_cpr,
+      s.class_count??"",s.avg_students??"",s.fill_rate??"",s.confidence,
+      s.proven_demand_score??"",s.historical_confidence??"",s.best_historical_course??"",
+      s.model_agreement??"",s.model_error??"",compareDecision(s),commercial];
+    lines.push(vals.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(","));
+  }
+  const blob=new Blob([lines.join("\n")],{type:"text/csv"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="zip_comparison.csv"; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ---------- Tabs ----------
+function switchTab(tab){
+  for (const b of $("tabbar").querySelectorAll("button")) b.classList.toggle("active", b.dataset.tab===tab);
+  for (const p of document.querySelectorAll(".pane")) p.classList.toggle("active", p.id===("pane-"+tab));
+  if (tab==="validation") ensureBacktest();
+}
+
+// ---------- Model validation ----------
+async function ensureBacktest(){
+  if (S.backtestLoaded) return; S.backtestLoaded=true;
+  try {
+    const resp=await fetch("/api/model-backtest"); const data=await resp.json();
+    if (data.error){ $("backtest-body").innerHTML = `<p class="muted">${esc(data.message||"Backtest not built yet.")}</p>`; return; }
+    S.backtest=data; renderBacktest(data);
+  } catch(e){ $("backtest-body").innerHTML = `<p class="muted">Failed to load model validation: ${esc(String(e))}</p>`; }
+}
+function renderBacktest(d){
+  const m = (d.metrics&&d.metrics.overall_vs_historical_score) || {};
+  const small = d.sample_size < 30;
+  let h = `<div class="summary-grid">`
+    + `<div class="metric"><div class="label">Overlap ZIPs</div><div class="value">${num(d.sample_size)}</div></div>`
+    + `<div class="metric"><div class="label">Correlation (overall)</div><div class="value">${m.correlation==null?"—":fmt(m.correlation)}</div></div>`
+    + `<div class="metric"><div class="label">R²</div><div class="value">${m.r2==null?"—":fmt(m.r2)}</div></div>`
+    + `<div class="metric"><div class="label">False positives</div><div class="value">${(d.false_positives||[]).length}</div></div>`
+    + `<div class="metric"><div class="label">False negatives</div><div class="value">${(d.false_negatives||[]).length}</div></div>`
+    + `</div>`;
+  const summary=d.model_agreement_summary||{};
+  h += `<details open><summary>Agreement summary</summary><div class="summary-grid">`
+    + Object.entries(summary).map(([k,v])=>`<div class="metric"><div class="label">${esc(k)}</div><div class="value">${num(v)}</div></div>`).join("")
+    + `</div></details>`;
+  if (small) h += `<div class="caveat">Small overlap (n=${num(d.sample_size)}) — treat these statistics as directional only, not precise accuracy.</div>`;
+  const rows=(d.modeled_vs_proven||[]).slice(0,25);
+  if (rows.length){
+    h += `<details open><summary>Modeled vs proven ZIPs</summary><div class="scroll-x"><table class="cmp"><thead><tr><th>ZIP</th><th>Modeled</th><th>Proven</th><th>Classes</th><th>Avg</th><th>Confidence</th><th>Agreement</th><th>Error</th></tr></thead><tbody>`
+      + rows.map(r=>`<tr><td>${esc(r.zip)}</td><td>${fmt(r.modeled_overall)}</td><td>${fmt(r.proven_demand_score)}</td><td>${num(r.proven_class_count)}</td><td>${fmt(r.proven_avg_students)}</td><td>${esc(r.historical_confidence||"—")}</td><td>${esc(r.model_agreement||r.validation_case||"—")}</td><td>${r.model_error==null?"—":fmt(r.model_error)}</td></tr>`).join("")
+      + `</tbody></table></div></details>`;
+  }
+  h += `<details><summary>Per-metric correlations</summary><div class="scroll-x"><table class="cmp"><thead><tr><th>Comparison</th><th>n</th><th>r</th><th>R²</th><th>slope</th></tr></thead><tbody>`;
+  for (const [k,v] of Object.entries(d.metrics||{}))
+    h += `<tr><td>${esc(k)}</td><td>${num(v.sample_size)}</td><td>${v.correlation==null?"—":fmt(v.correlation)}</td><td>${v.r2==null?"—":fmt(v.r2)}</td><td>${v.slope==null?"—":fmt(v.slope)}</td></tr>`;
+  h += `</tbody></table></div></details>`;
+  if (d.notes&&d.notes.length) h += `<details><summary>Notes &amp; caveats</summary><ul class="tight">`+d.notes.map(n=>`<li>${esc(n)}</li>`).join("")+`</ul></details>`;
+  $("backtest-body").innerHTML = h;
+}
+
+// ---------- Search / modes ----------
+async function doSearch(){
+  const raw=($("zip-input").value||"").trim();
+  if (!/^\d{5}$/.test(raw)){ setStatus("Enter a 5-digit ZIP code."); return; }
+  if (S.layer==="historical"){
+    const row=histByZip(raw);
+    if (row){ selectHist(raw); setStatus(row.missing_centroid?`ZIP ${raw} found, but centroid coordinates are missing.`:`Showing ZIP ${raw} (historical).`); return; }
+    // No ALLCPR history for this ZIP — switch to the national layer for the
+    // user instead of asking them to do it and search again.
+    setStatus(`ZIP ${raw} has no ALLCPR history — showing the national estimate instead.`);
+    await setLayer("modeled");
+  }
+  if (!S.nationalLoaded){ setStatus("Modeled layer still loading…"); return; }
+  const row=modeledByZip(raw);
+  if (!row){ setStatus(`ZIP ${raw} not in the modeled national set.`);
+    $("detail-card").innerHTML=`<p class="muted">ZIP ${esc(raw)} not found in the modeled national data.</p>`; switchTab("zip"); return; }
+  selectModeled(raw); setStatus(`Showing ZIP ${raw} (modeled estimate).`);
+}
+async function setLayer(layer){
+  S.layer=layer;
+  for (const b of $("layer-seg").querySelectorAll("button")) b.classList.toggle("active", b.dataset.layer===layer);
+  if (layer==="modeled"){ await ensureNational(); drawModeled(); }
+  else { drawHistorical(); setStatus(`Historical layer: ${S.zipRows.length} ZIPs with real ALLCPR activity.`); }
+  updateLegend();
+}
+function setMode(mode){
+  S.mode=mode;
+  for (const b of $("mode-seg").querySelectorAll("button")) b.classList.toggle("active", b.dataset.mode===mode);
+  if (S.layer==="modeled") drawModeled(); else drawHistorical();
+  updateLegend(); renderComparison();
+  if (S.selected){ if (S.selected.layer==="historical"){ const r=histByZip(S.selected.zip); if (r) renderHistDetail(r); }
+    else { const r=modeledByZip(S.selected.zip); if (r) renderModeledDetail(r); } }
+}
+function updateLegend(){
+  const viewLabel = S.vizMode==="points" ? "ZIP points" : S.vizMode==="heat" ? "Smooth heat" : "Both";
+  const intensityLabel = S.heatIntensity[0].toUpperCase()+S.heatIntensity.slice(1);
+  const boundarySuffix = S.boundariesOn ? ` · ${t("zipBoundaries")}` : "";
+  if (S.layer==="modeled"){
+    $("legend-title").textContent=`Modeled national — ${MODELED_TILT_LABEL[S.mode]} · ${viewLabel}${boundarySuffix}`;
+    $("legend-note").innerHTML=`Modeled score = public-data estimate. Smooth heat = regional intensity, not exact ZIP boundaries. ZIP detail panel = exact ZIP-level evidence. Google Places is context enrichment only and is not called on page load. Heat intensity: ${intensityLabel}.`;
+  } else {
+    $("legend-title").textContent=`Historical ALLCPR — ${COURSE_LABEL[S.mode]}${S.mode==="overall"?" demand":" students"} · ${viewLabel}${boundarySuffix}`;
+    $("legend-note").textContent=`Historical score = real ALLCPR evidence. Smooth heat = regional intensity, not exact ZIP boundaries. ZIP detail panel = exact ZIP-level evidence. Heat intensity: ${intensityLabel}.`;
+  }
+  if (S.boundariesOn){
+    const bn = S.zctaUnavailable ? t("boundariesNotLoaded") : t("boundariesOverlayOn");
+    $("legend-note").innerHTML += ` <span class="muted">${esc(bn)}</span>`;
+  }
+}
+
+// ---------- Summary / candidates ----------
+function renderSummary(report){
+  const s=report.executive_summary||{};
+  const cards=[["Best area",s.best_area],["Recommendation",s.recommendation],["Best course",s.best_course],
+    ["Area score",s.area_score!=null?fmt(s.area_score)+"/100":null],["Confidence",s.confidence],
+    ["Biggest risk",s.biggest_risk],["Next action",(s.next_actions&&s.next_actions[0])||null]];
+  $("summary-grid").innerHTML=cards.map(([l,v])=>`<div class="metric"><div class="label">${esc(l)}</div><div class="value">${esc(v||"—")}</div></div>`).join("");
+  $("full-summary").textContent=s.long_summary||s.why_it_matters||"No narrative available.";
+  $("before-leasing").textContent=s.before_leasing||"";
+  $("next-actions").innerHTML=(s.next_actions||[]).map(a=>`<li>${esc(a)}</li>`).join("")||"<li class='muted'>None listed.</li>";
+  const meta=report.metadata||{};
+  $("data-sources").innerHTML=(meta.data_sources||[]).map(d=>`<li>${esc(d)}</li>`).join("")||"<li class='muted'>Not recorded.</li>";
+  let notes=(meta.notes||[]).slice();
+  notes.push("Modeled score = public-data estimate.");
+  notes.push("Historical score = real ALLCPR evidence.");
+  notes.push("Smooth heat = regional intensity, not exact ZIP boundaries.");
+  notes.push("ZIP detail panel = exact ZIP-level evidence.");
+  notes.push("Google Places is context enrichment only and is not called on page load.");
+  if (S.national && S.national.enrichment_summary) notes.push(S.national.enrichment_summary);
+  notes.push("AHA-vs-ARC brand preference is not modeled from public data.");
+  if (s.data_confidence_note) notes.push(s.data_confidence_note);
+  $("data-notes").innerHTML=notes.map(n=>`<li>${esc(n)}</li>`).join("");
+  $("candidates-list").innerHTML=(report.candidates||[]).length
+    ? report.candidates.map(c=>`<div class="cand"><span class="nm">${esc(c.name||"Candidate")}</span> — area ${fmt(c.area_score)}${c.best_course?" · "+esc(c.best_course):""}<br><span class="muted">${esc(c.recommendation||"")}${c.biggest_risk?" · Risk: "+esc(c.biggest_risk):""}</span></div>`).join("")
+    : `<p class="muted">No candidate sites in report.</p>`;
+}
+
+function initSheetResizer(){
+  const sheet = $("sheet");
+  const grabber = $("grabber");
+  const collapsedPx = 58;
+  let lastExpandedHeight = Math.round(window.innerHeight * 0.26);
+  let dragStartY = 0;
+  let dragStartHeight = 0;
+  let moved = false;
+
+  function clampHeight(px){
+    const min = Math.min(180, Math.max(112, window.innerHeight * 0.18));
+    const max = Math.max(min, window.innerHeight * 0.84);
+    return Math.round(Math.min(max, Math.max(min, px)));
+  }
+  function setSheetHeight(px, remember=true){
+    const height = Math.round(px);
+    document.documentElement.style.setProperty("--sheet-height", `${height}px`);
+    if (height > collapsedPx + 10) {
+      sheet.classList.remove("collapsed");
+      if (remember) lastExpandedHeight = height;
+    }
+    if (S.map) setTimeout(()=>S.map.invalidateSize(), 80);
+  }
+  function toggleCollapsed(){
+    if (sheet.classList.contains("collapsed")) setSheetHeight(lastExpandedHeight);
+    else {
+      const current = sheet.getBoundingClientRect().height;
+      if (current > collapsedPx + 10) lastExpandedHeight = current;
+      sheet.classList.add("collapsed");
+      document.documentElement.style.setProperty("--sheet-height", `${collapsedPx}px`);
+      if (S.map) setTimeout(()=>S.map.invalidateSize(), 250);
+    }
+  }
+  function onPointerMove(e){
+    moved = moved || Math.abs(e.clientY - dragStartY) > 4;
+    const nextHeight = dragStartHeight + (dragStartY - e.clientY);
+    setSheetHeight(clampHeight(nextHeight));
+  }
+  function onPointerUp(e){
+    document.body.classList.remove("sheet-resizing");
+    grabber.releasePointerCapture?.(e.pointerId);
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", onPointerUp);
+    if (!moved) toggleCollapsed();
+  }
+  grabber.addEventListener("pointerdown", e=>{
+    dragStartY = e.clientY;
+    dragStartHeight = sheet.getBoundingClientRect().height;
+    moved = false;
+    sheet.classList.remove("collapsed");
+    document.body.classList.add("sheet-resizing");
+    grabber.setPointerCapture?.(e.pointerId);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+  });
+  window.addEventListener("resize", ()=>{
+    if (!sheet.classList.contains("collapsed")) setSheetHeight(clampHeight(sheet.getBoundingClientRect().height));
+  });
+}
+
+// ---------- Boot ----------
+async function boot(){
+  applyTranslations();
+  initMap();
+  $("zip-search-btn").addEventListener("click", doSearch);
+  $("zip-input").addEventListener("keydown", e=>{ if (e.key==="Enter") doSearch(); });
+  for (const b of $("layer-seg").querySelectorAll("button")) b.addEventListener("click", ()=>setLayer(b.dataset.layer));
+  for (const b of $("basemap-seg").querySelectorAll("button")) b.addEventListener("click", ()=>setBaseMap(b.dataset.basemap));
+  for (const b of $("viz-seg").querySelectorAll("button")) b.addEventListener("click", ()=>setVizMode(b.dataset.viz));
+  for (const b of $("boundary-seg").querySelectorAll("button")) b.addEventListener("click", ()=>setBoundaries(b.dataset.boundary==="on"));
+  for (const b of $("heat-intensity-seg").querySelectorAll("button")) b.addEventListener("click", ()=>setHeatIntensity(b.dataset.heatIntensity));
+  for (const b of $("mode-seg").querySelectorAll("button")) b.addEventListener("click", ()=>setMode(b.dataset.mode));
+  for (const b of $("lang-seg").querySelectorAll("button")) b.addEventListener("click", ()=>setLanguage(b.dataset.lang));
+  for (const b of $("tabbar").querySelectorAll("button")) b.addEventListener("click", ()=>switchTab(b.dataset.tab));
+  initSheetResizer();
+  $("export-view-top").addEventListener("click", exportTopZipsCurrentViewCSV);
+  $("export-map-view").addEventListener("click", exportCurrentMapViewCSV);
+  $("export-national-top").addEventListener("click", exportNationalTopZipsCSV);
+  $("export-qa").addEventListener("click", exportQASummaryJSON);
+  $("cmp-export").addEventListener("click", exportCompareCSV);
+  $("cmp-clear").addEventListener("click", clearCompare);
+  restoreUiPrefs();
+  updateLegend(); renderComparison();
+  try {
+    const resp=await fetch("/api/report"); const data=await resp.json();
+    if (data.error){ setStatus(data.message||"Report not available.");
+      $("summary-grid").innerHTML=`<div class="metric"><div class="value">${esc(data.message||"No data")}</div></div>`; return; }
+    S.report=data; S.zipRows=data.zip_demand||[]; S.candidates=data.candidates||[];
+    renderSummary(data); drawHistorical();
+    const pts=[]; for (const r of S.zipRows) if (r.lat!=null) pts.push([r.lat,r.lng]); for (const c of S.candidates) if (c.lat!=null) pts.push([c.lat,c.lng]);
+    if (pts.length) S.map.fitBounds(pts,{padding:[40,40]});
+    const mapped=S.zipRows.filter(r=>r.lat!=null).length;
+    setStatus(`Historical layer: ${mapped} mapped ZIPs, ${S.candidates.length} candidate site(s). Switch to Modeled national for the full US.`);
+  } catch(e){ setStatus("Failed to load report: "+e); }
+  // Background-preload the modeled national layer after first paint so switching
+  // to it is instant. Silent: never clobbers the historical status line.
+  setTimeout(()=>{ if (!S.nationalLoaded && !S.nationalLoading) ensureNational({background:true}); }, 800);
+}
+// Restore persisted UI preferences (view + boundary overlay) and sync the
+// segmented controls. Language is restored separately at script load.
+function restoreUiPrefs(){
+  try {
+    const v = localStorage.getItem(VIZ_KEY);
+    if (v==="points" || v==="heat" || v==="both") S.vizMode = v;
+    S.boundariesOn = localStorage.getItem(BOUNDARY_KEY) === "1";
+  } catch(e){}
+  for (const b of $("viz-seg").querySelectorAll("button")) b.classList.toggle("active", b.dataset.viz===S.vizMode);
+  for (const b of $("boundary-seg").querySelectorAll("button")) b.classList.toggle("active", (b.dataset.boundary==="on")===S.boundariesOn);
+}
+boot();
+</script>
+</body>
+</html>

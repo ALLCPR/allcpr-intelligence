@@ -1,0 +1,4 @@
+zip,course_type,class_count,provider_count,median_price,min_price,max_price,providers,sample_locations
+95112,BLS,4,2,80,70,95,Example Red Cross; Example Vital Connect,Example Training Center San Jose
+95112,CPR,6,3,75,60,120,Example Red Cross; Example Safety Seminars; Example Health Corp,Example Community Room San Jose
+95050,CPR,2,1,70,65,75,Example Safety Seminars,Example Santa Clara Office

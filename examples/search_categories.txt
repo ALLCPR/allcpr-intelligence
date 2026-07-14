@@ -1,0 +1,33 @@
+# Reference list of demand & competition categories used by the system.
+# This file is documentation only — the live category list lives in
+# app/config.py (DEMAND_CATEGORIES + COMPETITION_QUERIES). Edit there.
+
+# --- Demand drivers (Google Places "Nearby Search") ---
+hospital
+urgent_care
+fire_station
+ems
+nursing_school
+medical_school
+dental_school
+community_college
+university
+childcare_center
+senior_care
+gym
+physical_therapy
+dental_clinic
+medical_clinic
+emt_training
+cna_training
+healthcare_training
+
+# --- Competition queries (Google Places "Text Search") ---
+CPR training
+BLS training
+First Aid training
+American Heart Association training center
+Red Cross CPR class
+CPR certification
+EMT school
+medical training center

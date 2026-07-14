@@ -1,0 +1,5203 @@
+{
+  "zips": [
+    "07030",
+    "10016",
+    "94086",
+    "11215",
+    "94110",
+    "94538",
+    "94541",
+    "95112",
+    "07514",
+    "47809",
+    "95110",
+    "95113",
+    "95125",
+    "95126",
+    "95133",
+    "95192",
+    "07302",
+    "20009",
+    "98115",
+    "11201",
+    "60622",
+    "60614",
+    "95051",
+    "10028",
+    "98103",
+    "11238"
+  ],
+  "results": [
+    {
+      "zip": "07030",
+      "land_sqmi": 1.249,
+      "lat": 40.745251,
+      "lng": -74.027926,
+      "enhanced": {
+        "healthcare_facility_density": 68.8551,
+        "training_school_density": 56.8455,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 68.8551,
+          "status": "present",
+          "reason": "",
+          "raw_count": 86,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 56.8455,
+          "status": "present",
+          "reason": "",
+          "raw_count": 71,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 24,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 75.2,
+      "bls_demand": 67.0,
+      "cpr_demand": 83.3,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.007285102092261154,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8582020863162201,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 180579.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.7879004548253192,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 58668.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 46972.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.8262203436051269,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 68.8551,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 56.8455,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "10016",
+      "land_sqmi": 0.549,
+      "lat": 40.745182,
+      "lng": -73.978053,
+      "enhanced": {
+        "healthcare_facility_density": 160.2909,
+        "training_school_density": 127.5041,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 160.2909,
+          "status": "present",
+          "reason": "",
+          "raw_count": 88,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 127.5041,
+          "status": "present",
+          "reason": "",
+          "raw_count": 70,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 24,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 73.6,
+      "bls_demand": 65.4,
+      "cpr_demand": 81.7,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.004007224291680777,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.9183704291027166,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 140381.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.9126,
+          "weight": 0.1,
+          "contribution": 0.0913,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.7284313523958312,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.9137,
+          "weight": 0.08,
+          "contribution": 0.0731,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 52971.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 96486.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.7980814667800775,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 160.2909,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 127.5041,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "94086",
+      "land_sqmi": 4.3671,
+      "lat": 37.371634,
+      "lng": -122.023202,
+      "enhanced": {
+        "healthcare_facility_density": 19.9215,
+        "training_school_density": 14.6549,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 19.9215,
+          "status": "present",
+          "reason": "",
+          "raw_count": 87,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 14.6549,
+          "status": "present",
+          "reason": "",
+          "raw_count": 64,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 24,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 74.5,
+      "bls_demand": 66.2,
+      "cpr_demand": 82.7,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.009123784877741282,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.832870984601777,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 177054.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.7274811739718092,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.9099,
+          "weight": 0.08,
+          "contribution": 0.0728,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 49746.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 0.9949,
+          "weight": 0.08,
+          "contribution": 0.0796,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 11391.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.6815729016402201,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 19.9215,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 14.6549,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "11215",
+      "land_sqmi": 2.189,
+      "lat": 40.662688,
+      "lng": -73.98674,
+      "enhanced": {
+        "healthcare_facility_density": 40.6584,
+        "training_school_density": 32.8922,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 40.6584,
+          "status": "present",
+          "reason": "",
+          "raw_count": 89,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 32.8922,
+          "status": "present",
+          "reason": "",
+          "raw_count": 72,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 25,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 74.8,
+      "bls_demand": 66.5,
+      "cpr_demand": 83.0,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.0008600301010535369,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8087761388963813,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 185865.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.7347422372786154,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.939,
+          "weight": 0.08,
+          "contribution": 0.0751,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 70441.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 32180.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.8059844113018062,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 40.6584,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 32.8922,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "94110",
+      "land_sqmi": 2.39,
+      "lat": 37.750021,
+      "lng": -122.415201,
+      "enhanced": {
+        "healthcare_facility_density": 37.6569,
+        "training_school_density": 28.0335,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 37.6569,
+          "status": "present",
+          "reason": "",
+          "raw_count": 90,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 28.0335,
+          "status": "present",
+          "reason": "",
+          "raw_count": 67,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 22,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 73.7,
+      "bls_demand": 65.3,
+      "cpr_demand": 82.1,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.002910882221227049,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8643236371793913,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 158351.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.6954821518176942,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.7819,
+          "weight": 0.08,
+          "contribution": 0.0626,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 66865.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 27977.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.6168492091918487,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 37.6569,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 28.0335,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "94538",
+      "land_sqmi": 16.54,
+      "lat": 37.501368,
+      "lng": -121.956753,
+      "enhanced": {
+        "healthcare_facility_density": 5.4413,
+        "training_school_density": 3.7485,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 5.4413,
+          "status": "present",
+          "reason": "",
+          "raw_count": 90,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 3.7485,
+          "status": "present",
+          "reason": "",
+          "raw_count": 62,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 23,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 60.1,
+      "bls_demand": 51.7,
+      "cpr_demand": 68.4,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.009647263438230339,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8099762470308789,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 147301.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.9755,
+          "weight": 0.1,
+          "contribution": 0.0975,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.6702610152820532,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.681,
+          "weight": 0.08,
+          "contribution": 0.0545,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 67781.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 4098.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 0.5092,
+          "weight": 0.07,
+          "contribution": 0.0356,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.5481991741956584,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 0.9955,
+          "weight": 0.05,
+          "contribution": 0.0498,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 5.4413,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 0.3628,
+          "weight": 0.1,
+          "contribution": 0.0363,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 3.7485,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 0.4686,
+          "weight": 0.05,
+          "contribution": 0.0234,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "94541",
+      "land_sqmi": 7.4557,
+      "lat": 37.673757,
+      "lng": -122.087823,
+      "enhanced": {
+        "healthcare_facility_density": 11.5347,
+        "training_school_density": 8.4499,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 11.5347,
+          "status": "present",
+          "reason": "",
+          "raw_count": 86,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 8.4499,
+          "status": "present",
+          "reason": "",
+          "raw_count": 63,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 23,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 62.5,
+      "bls_demand": 53.4,
+      "cpr_demand": 71.7,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.009989484752891693,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8230536647849983,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 105729.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.5975,
+          "weight": 0.1,
+          "contribution": 0.0598,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.6195551855806294,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.4782,
+          "weight": 0.08,
+          "contribution": 0.0383,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 67139.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 9005.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.3063533144097512,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 0.3909,
+          "weight": 0.05,
+          "contribution": 0.0195,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 11.5347,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 0.769,
+          "weight": 0.1,
+          "contribution": 0.0769,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 8.4499,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "95112",
+      "land_sqmi": 7.2698,
+      "lat": 37.344599,
+      "lng": -121.88344,
+      "enhanced": {
+        "healthcare_facility_density": 11.9674,
+        "training_school_density": 8.2534,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 11.9674,
+          "status": "present",
+          "reason": "",
+          "raw_count": 87,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 8.2534,
+          "status": "present",
+          "reason": "",
+          "raw_count": 60,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 23,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 18
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 62.0,
+      "bls_demand": 53.4,
+      "cpr_demand": 70.7,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.011110076653322162,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8914471964164328,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 89103.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.4464,
+          "weight": 0.1,
+          "contribution": 0.0446,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.6300322612181054,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.5201,
+          "weight": 0.08,
+          "contribution": 0.0416,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 57373.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 7892.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 0.9864,
+          "weight": 0.07,
+          "contribution": 0.069,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.38201702402758325,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 0.58,
+          "weight": 0.05,
+          "contribution": 0.029,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 11.9674,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 0.7978,
+          "weight": 0.1,
+          "contribution": 0.0798,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 8.2534,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "07514",
+      "land_sqmi": 0.928,
+      "lat": 40.924786,
+      "lng": -74.144542,
+      "enhanced": {
+        "healthcare_facility_density": 91.5951,
+        "training_school_density": 75.4313,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 91.5951,
+          "status": "present",
+          "reason": "",
+          "raw_count": 85,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 75.4313,
+          "status": "present",
+          "reason": "",
+          "raw_count": 70,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 25,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 48.5,
+      "bls_demand": 45.3,
+      "cpr_demand": 51.6,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.02336865036142192,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.7913982660919262,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 0.9656,
+          "weight": 0.14,
+          "contribution": 0.1352,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 70205.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.2746,
+          "weight": 0.1,
+          "contribution": 0.0275,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.6180538555691555,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.4722,
+          "weight": 0.08,
+          "contribution": 0.0378,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 20647.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 0.407,
+          "weight": 0.08,
+          "contribution": 0.0326,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 22249.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.12546681987934502,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 91.5951,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 75.4313,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "47809",
+      "land_sqmi": 0.156,
+      "lat": 39.471403,
+      "lng": -87.409894,
+      "enhanced": {
+        "healthcare_facility_density": 551.2666,
+        "training_school_density": 294.8635,
+        "competition_gap_score": 5.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 551.2666,
+          "status": "present",
+          "reason": "",
+          "raw_count": 86,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 294.8635,
+          "status": "present",
+          "reason": "",
+          "raw_count": 46,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 5.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 19,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 9,
+          "nursing_school": 20,
+          "emt_school": 7,
+          "medical_assistant": 19
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 8,
+          "first_aid_cert": 14
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.65,
+      "final_denominator": 0.85,
+      "overall": 44.5,
+      "bls_demand": 42.9,
+      "cpr_demand": 46.1,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.0,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 1.0,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": null,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": null,
+          "weight": 0.1,
+          "contribution": 0.0,
+          "present": false,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.33864795918367346,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.0,
+          "weight": 0.08,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 1568.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 0.0216,
+          "weight": 0.08,
+          "contribution": 0.0017,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 10051.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": null,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": null,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": false,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 551.2666,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 294.8635,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 5.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.05,
+          "weight": 0.05,
+          "contribution": 0.0025,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "95110",
+      "land_sqmi": 4.5463,
+      "lat": 37.346572,
+      "lng": -121.909747,
+      "enhanced": {
+        "healthcare_facility_density": 18.9163,
+        "training_school_density": 13.4174,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 18.9163,
+          "status": "present",
+          "reason": "",
+          "raw_count": 86,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 13.4174,
+          "status": "present",
+          "reason": "",
+          "raw_count": 61,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 24,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 53.6,
+      "bls_demand": 52.7,
+      "cpr_demand": 54.5,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.010281864917567806,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8429093823573611,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 131491.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.8317,
+          "weight": 0.1,
+          "contribution": 0.0832,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.6704700778510727,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.6819,
+          "weight": 0.08,
+          "contribution": 0.0546,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 19963.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 0.3932,
+          "weight": 0.08,
+          "contribution": 0.0315,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 4391.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 0.546,
+          "weight": 0.07,
+          "contribution": 0.0382,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.38757115749525617,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 0.5939,
+          "weight": 0.05,
+          "contribution": 0.0297,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 18.9163,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 13.4174,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "95113",
+      "land_sqmi": 0.348,
+      "lat": 37.334013,
+      "lng": -121.890443,
+      "enhanced": {
+        "healthcare_facility_density": 247.1197,
+        "training_school_density": 169.5356,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 247.1197,
+          "status": "present",
+          "reason": "",
+          "raw_count": 86,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 169.5356,
+          "status": "present",
+          "reason": "",
+          "raw_count": 59,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 22,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 19
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 58.4,
+      "bls_demand": 57.1,
+      "cpr_demand": 59.7,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.038485033598045205,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.896969696969697,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 151685.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.6913006756756757,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.7652,
+          "weight": 0.08,
+          "contribution": 0.0612,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 2640.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 0.0432,
+          "weight": 0.08,
+          "contribution": 0.0035,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 7586.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 0.9479,
+          "weight": 0.07,
+          "contribution": 0.0664,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.6654512306289881,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 247.1197,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 169.5356,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "95125",
+      "land_sqmi": 7.285,
+      "lat": 37.295599,
+      "lng": -121.894071,
+      "enhanced": {
+        "healthcare_facility_density": 11.6678,
+        "training_school_density": 8.3734,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 11.6678,
+          "status": "present",
+          "reason": "",
+          "raw_count": 85,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 8.3734,
+          "status": "present",
+          "reason": "",
+          "raw_count": 61,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 22,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 70.0,
+      "bls_demand": 60.6,
+      "cpr_demand": 79.4,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.01569953720185119,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8137966519046657,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 160738.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.6342862304114167,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.5371,
+          "weight": 0.08,
+          "contribution": 0.043,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 54419.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 7470.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 0.9333,
+          "weight": 0.07,
+          "contribution": 0.0653,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.5663555656726611,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 11.6678,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 0.7779,
+          "weight": 0.1,
+          "contribution": 0.0778,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 8.3734,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "95126",
+      "land_sqmi": 3.3261,
+      "lat": 37.326922,
+      "lng": -121.916779,
+      "enhanced": {
+        "healthcare_facility_density": 25.2546,
+        "training_school_density": 18.6403,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 25.2546,
+          "status": "present",
+          "reason": "",
+          "raw_count": 84,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 18.6403,
+          "status": "present",
+          "reason": "",
+          "raw_count": 62,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 23,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 68.5,
+      "bls_demand": 62.1,
+      "cpr_demand": 74.8,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.01320032678333405,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8444438646385055,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 128983.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.8089,
+          "weight": 0.1,
+          "contribution": 0.0809,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.7185848910860497,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.8743,
+          "weight": 0.08,
+          "contribution": 0.0699,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 38327.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 0.7642,
+          "weight": 0.08,
+          "contribution": 0.0611,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 11523.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.5431121648478087,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 0.9828,
+          "weight": 0.05,
+          "contribution": 0.0491,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 25.2546,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 18.6403,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "95133",
+      "land_sqmi": 3.2609,
+      "lat": 37.371723,
+      "lng": -121.860556,
+      "enhanced": {
+        "healthcare_facility_density": 26.0665,
+        "training_school_density": 18.7065,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 26.0665,
+          "status": "present",
+          "reason": "",
+          "raw_count": 85,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 18.7065,
+          "status": "present",
+          "reason": "",
+          "raw_count": 61,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 23,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 63.8,
+      "bls_demand": 58.2,
+      "cpr_demand": 69.4,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.018019726858877087,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8378660383709189,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 142170.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.9288,
+          "weight": 0.1,
+          "contribution": 0.0929,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.6353593379664966,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.5414,
+          "weight": 0.08,
+          "contribution": 0.0433,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 29710.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 0.5901,
+          "weight": 0.08,
+          "contribution": 0.0472,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 9111.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.45592677758239775,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 0.7648,
+          "weight": 0.05,
+          "contribution": 0.0382,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 26.0665,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 18.7065,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "95192",
+      "land_sqmi": null,
+      "lat": null,
+      "lng": null,
+      "enhanced": {
+        "healthcare_facility_density": null,
+        "training_school_density": null,
+        "competition_gap_score": null
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": null,
+          "status": "missing",
+          "reason": "ZIP not in ACS bulk (no baseline)",
+          "raw_count": null,
+          "category_status": "no_baseline"
+        },
+        "training_school_density": {
+          "value": null,
+          "status": "missing",
+          "reason": "ZIP not in ACS bulk (no baseline)",
+          "raw_count": null,
+          "category_status": "no_baseline"
+        },
+        "competition_gap_score": {
+          "value": null,
+          "status": "missing",
+          "reason": "ZIP not in ACS bulk (no baseline)",
+          "raw_count": null,
+          "category_status": "no_baseline"
+        }
+      },
+      "query_detail": {},
+      "present_count": 0,
+      "baseline_denominator": 0.0,
+      "final_denominator": 0.0,
+      "overall": null,
+      "bls_demand": null,
+      "cpr_demand": null,
+      "tier": "baseline",
+      "weight_breakdown": [],
+      "cache_hits": 0,
+      "cache_misses": 0,
+      "live_calls": 0
+    },
+    {
+      "zip": "07302",
+      "land_sqmi": 1.433,
+      "lat": 40.718808,
+      "lng": -74.044634,
+      "enhanced": {
+        "healthcare_facility_density": 59.3155,
+        "training_school_density": 51.6394,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 59.3155,
+          "status": "present",
+          "reason": "",
+          "raw_count": 85,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 51.6394,
+          "status": "present",
+          "reason": "",
+          "raw_count": 74,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 25,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 75.2,
+      "bls_demand": 67.0,
+      "cpr_demand": 83.3,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.006603870175079349,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8661864105300605,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 175077.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.8022670801076042,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 56220.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 39232.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.8216320013808579,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 59.3155,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 51.6394,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "20009",
+      "land_sqmi": 1.318,
+      "lat": 38.919144,
+      "lng": -77.037381,
+      "enhanced": {
+        "healthcare_facility_density": 59.1805,
+        "training_school_density": 53.8694,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 59.1805,
+          "status": "present",
+          "reason": "",
+          "raw_count": 78,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 53.8694,
+          "status": "present",
+          "reason": "",
+          "raw_count": 71,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 23,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 74.8,
+      "bls_demand": 66.7,
+      "cpr_demand": 82.9,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.00026785235977928965,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.9043668993020937,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 146664.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.9697,
+          "weight": 0.1,
+          "contribution": 0.097,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.8231688494950832,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 50150.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 38050.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.8276266641126329,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 59.1805,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 53.8694,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "98115",
+      "land_sqmi": 6.5528,
+      "lat": 47.685753,
+      "lng": -122.283703,
+      "enhanced": {
+        "healthcare_facility_density": 13.582,
+        "training_school_density": 9.9194,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 13.582,
+          "status": "present",
+          "reason": "",
+          "raw_count": 89,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 9.9194,
+          "status": "present",
+          "reason": "",
+          "raw_count": 65,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 22,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 73.8,
+      "bls_demand": 65.0,
+      "cpr_demand": 82.6,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.0012141447867658219,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8463449189497507,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 156142.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.7162267924692378,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.8649,
+          "weight": 0.08,
+          "contribution": 0.0692,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 54349.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 8294.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.8061640841307621,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 13.582,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 0.9055,
+          "weight": 0.1,
+          "contribution": 0.0905,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 9.9194,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "11201",
+      "land_sqmi": 1.354,
+      "lat": 40.6937,
+      "lng": -73.989859,
+      "enhanced": {
+        "healthcare_facility_density": 63.515,
+        "training_school_density": 52.4368,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 63.515,
+          "status": "present",
+          "reason": "",
+          "raw_count": 86,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 52.4368,
+          "status": "present",
+          "reason": "",
+          "raw_count": 71,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 26,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 74.2,
+      "bls_demand": 65.9,
+      "cpr_demand": 82.5,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.002427977774664986,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8487421116676571,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 173136.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.7140904241130969,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.8564,
+          "weight": 0.08,
+          "contribution": 0.0685,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 70674.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 52196.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.799407818297665,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 63.515,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 52.4368,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "60622",
+      "land_sqmi": 2.5,
+      "lat": 41.902172,
+      "lng": -87.683337,
+      "enhanced": {
+        "healthcare_facility_density": 35.2006,
+        "training_school_density": 26.0005,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 35.2006,
+          "status": "present",
+          "reason": "",
+          "raw_count": 88,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 26.0005,
+          "status": "present",
+          "reason": "",
+          "raw_count": 65,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 23,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 15,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 73.8,
+      "bls_demand": 65.8,
+      "cpr_demand": 81.7,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.011620449939717312,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8732260250141918,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 136277.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.8752,
+          "weight": 0.1,
+          "contribution": 0.0875,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.8174936039927861,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 54609.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 21844.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.747693496341408,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 35.2006,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 26.0005,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "60614",
+      "land_sqmi": 3.222,
+      "lat": 41.922747,
+      "lng": -87.647153,
+      "enhanced": {
+        "healthcare_facility_density": 26.0711,
+        "training_school_density": 19.8637,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 26.0711,
+          "status": "present",
+          "reason": "",
+          "raw_count": 84,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 19.8637,
+          "status": "present",
+          "reason": "",
+          "raw_count": 64,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 24,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 15,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 73.7,
+      "bls_demand": 65.7,
+      "cpr_demand": 81.6,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.008104008667388949,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8738630416024218,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 136448.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.8768,
+          "weight": 0.1,
+          "contribution": 0.0877,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.7470538720538721,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.9882,
+          "weight": 0.08,
+          "contribution": 0.0791,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 70693.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 21941.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.8721096828113185,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 26.0711,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 19.8637,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "95051",
+      "land_sqmi": 6.591,
+      "lat": 37.348311,
+      "lng": -121.984435,
+      "enhanced": {
+        "healthcare_facility_density": 11.8344,
+        "training_school_density": 9.2551,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 11.8344,
+          "status": "present",
+          "reason": "",
+          "raw_count": 78,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 9.2551,
+          "status": "present",
+          "reason": "",
+          "raw_count": 61,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 21,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 16
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 72.5,
+      "bls_demand": 63.0,
+      "cpr_demand": 82.0,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.006996125651531622,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8369806942340542,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 196690.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.690765913204205,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.7631,
+          "weight": 0.08,
+          "contribution": 0.061,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 62054.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 9415.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.7018977668336588,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 11.8344,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 0.789,
+          "weight": 0.1,
+          "contribution": 0.0789,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 9.2551,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "10028",
+      "land_sqmi": 0.316,
+      "lat": 40.776447,
+      "lng": -73.953383,
+      "enhanced": {
+        "healthcare_facility_density": 268.9874,
+        "training_school_density": 218.3545,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 268.9874,
+          "status": "present",
+          "reason": "",
+          "raw_count": 85,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 218.3545,
+          "status": "present",
+          "reason": "",
+          "raw_count": 69,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 28,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 73.2,
+      "bls_demand": 64.8,
+      "cpr_demand": 81.5,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.004991282349321391,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8678403325386638,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 175121.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.686788288605574,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.7472,
+          "weight": 0.08,
+          "contribution": 0.0598,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 49077.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 0.9814,
+          "weight": 0.08,
+          "contribution": 0.0785,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 155307.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.8378331344470963,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 268.9874,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 218.3545,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "98103",
+      "land_sqmi": 4.5901,
+      "lat": 47.673874,
+      "lng": -122.33471,
+      "enhanced": {
+        "healthcare_facility_density": 18.7361,
+        "training_school_density": 13.9432,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 18.7361,
+          "status": "present",
+          "reason": "",
+          "raw_count": 86,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 13.9432,
+          "status": "present",
+          "reason": "",
+          "raw_count": 64,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 23,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 73.2,
+      "bls_demand": 65.3,
+      "cpr_demand": 81.0,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.0037479372360361366,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8851360331111997,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 131154.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.8287,
+          "weight": 0.1,
+          "contribution": 0.0829,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.7668861671778812,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 52671.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 11475.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.7857345836885479,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 18.7361,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 13.9432,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    },
+    {
+      "zip": "11238",
+      "land_sqmi": 1.849,
+      "lat": 40.671331,
+      "lng": -73.965937,
+      "enhanced": {
+        "healthcare_facility_density": 47.0526,
+        "training_school_density": 38.3993,
+        "competition_gap_score": 0.0
+      },
+      "signal_report": {
+        "healthcare_facility_density": {
+          "value": 47.0526,
+          "status": "present",
+          "reason": "",
+          "raw_count": 87,
+          "category_status": "ok"
+        },
+        "training_school_density": {
+          "value": 38.3993,
+          "status": "present",
+          "reason": "",
+          "raw_count": 71,
+          "category_status": "ok"
+        },
+        "competition_gap_score": {
+          "value": 0.0,
+          "status": "present",
+          "reason": "",
+          "raw_count": 25,
+          "category_status": "ok"
+        }
+      },
+      "query_detail": {
+        "healthcare_facility_density": {
+          "hospital": 20,
+          "urgent_care": 20,
+          "clinic": 20,
+          "doctor_office": 20,
+          "nursing_facility": 20
+        },
+        "training_school_density": {
+          "cpr_training": 20,
+          "nursing_school": 20,
+          "emt_school": 20,
+          "medical_assistant": 20
+        },
+        "competition_gap_score": {
+          "cpr_bls_cert": 20,
+          "first_aid_cert": 20
+        }
+      },
+      "present_count": 3,
+      "baseline_denominator": 0.8,
+      "final_denominator": 1.0,
+      "overall": 72.8,
+      "bls_demand": 64.7,
+      "cpr_demand": 80.8,
+      "tier": "enriched",
+      "weight_breakdown": [
+        {
+          "field": "healthcare_employment_share",
+          "label": "healthcare-employment share",
+          "raw_value": 0.0018628281117696868,
+          "bounds": [
+            0.05,
+            0.25
+          ],
+          "normalized": 0.0,
+          "weight": 0.28,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "working_age_share",
+          "label": "working-age share",
+          "raw_value": 0.8427457365669723,
+          "bounds": [
+            0.55,
+            0.8
+          ],
+          "normalized": 1.0,
+          "weight": 0.14,
+          "contribution": 0.14,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "median_household_income",
+          "label": "median household income",
+          "raw_value": 134523.0,
+          "bounds": [
+            40000.0,
+            150000.0
+          ],
+          "normalized": 0.8593,
+          "weight": 0.1,
+          "contribution": 0.0859,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "employment_rate",
+          "label": "employment rate",
+          "raw_value": 0.7205613178767541,
+          "bounds": [
+            0.5,
+            0.75
+          ],
+          "normalized": 0.8822,
+          "weight": 0.08,
+          "contribution": 0.0706,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population",
+          "label": "population",
+          "raw_value": 58345.0,
+          "bounds": [
+            500.0,
+            50000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.08,
+          "contribution": 0.08,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "population_density",
+          "label": "population density",
+          "raw_value": 31555.0,
+          "bounds": [
+            50.0,
+            8000.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.07,
+          "contribution": 0.07,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "bachelors_or_higher_share",
+          "label": "bachelor's-or-higher share",
+          "raw_value": 0.7325563530212242,
+          "bounds": [
+            0.15,
+            0.55
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": false
+        },
+        {
+          "field": "healthcare_facility_density",
+          "label": "healthcare-facility density",
+          "raw_value": 47.0526,
+          "bounds": [
+            0.0,
+            15.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.1,
+          "contribution": 0.1,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "training_school_density",
+          "label": "training-school density",
+          "raw_value": 38.3993,
+          "bounds": [
+            0.0,
+            8.0
+          ],
+          "normalized": 1.0,
+          "weight": 0.05,
+          "contribution": 0.05,
+          "present": true,
+          "enhanced": true
+        },
+        {
+          "field": "competition_gap_score",
+          "label": "competition gap",
+          "raw_value": 0.0,
+          "bounds": [
+            0.0,
+            100.0
+          ],
+          "normalized": 0.0,
+          "weight": 0.05,
+          "contribution": 0.0,
+          "present": true,
+          "enhanced": true
+        }
+      ],
+      "cache_hits": 0,
+      "cache_misses": 11,
+      "live_calls": 11
+    }
+  ]
+}

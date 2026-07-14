@@ -1,0 +1,8 @@
+city,state,latitude,longitude,radius_miles,rent_per_sqft_annual,source_url,notes
+,CA,37.3213,-121.9478,2,39.5,https://www.commercialcafe.com/retail/us/ca/santa-clara-county/san-jose/,"West San Jose / Santana Row submarket average asking retail rent, CommercialCafe 2026 - estimate, not a specific unit"
+,CA,37.3337,-121.8907,2,36.73,https://www.commercialcafe.com/retail/us/ca/santa-clara-county/san-jose/,"Downtown San Jose submarket average asking retail rent, CommercialCafe 2026 - estimate, not a specific unit"
+,CA,37.4157,-121.8974,2,38,https://www.cityfeet.com/cont/milpitas-ca/retail-space-for-lease,"Milpitas submarket average asking retail rent, CityFeet/LoopNet 2026 - estimate, not a specific unit"
+,CA,37.5519,-121.9780,2,34,https://www.commercialcafe.com/retail/us/ca/fremont/,"Fremont submarket average asking retail rent, CommercialCafe/PropertyShark 2026 - estimate, not a specific unit"
+,CA,37.3968,-121.8717,2,37.41,https://www.commercialcafe.com/retail/us/ca/santa-clara-county/san-jose/,"San Jose citywide average asking retail rent (no Berryessa-specific figure), CommercialCafe 2026 - estimate"
+,CA,37.3688,-122.0363,2,44,https://www.cityfeet.com/cont/sunnyvale-ca/retail-space-for-lease,"Sunnyvale submarket average asking retail rent, CityFeet 2026 - estimate, not a specific unit"
+,CA,37.2993,-121.7714,2,37.41,https://www.commercialcafe.com/retail/us/ca/santa-clara-county/san-jose/,"San Jose citywide average asking retail rent (no Evergreen-specific figure), CommercialCafe 2026 - estimate"

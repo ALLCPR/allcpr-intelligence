@@ -1,0 +1,108 @@
+services:
+  - type: web
+    name: allcpr-site-intelligence
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /health
+    # Persistent disk for the response cache (app/config.py: CACHE_DIR =
+    # data/cache, CACHE_DB = data/cache/cache.sqlite). Without this, Render's
+    # ephemeral filesystem wipes the cache on every deploy/restart, forcing a
+    # full Google/Places re-scrape. With it, the existing 30-day TTLs decide
+    # freshness, so values stay stable and only refresh monthly.
+    disk:
+      name: cache
+      mountPath: /opt/render/project/src/data/cache
+      sizeGB: 2
+    envVars:
+      # ===== AUTOMATIC — a Blueprint sync applies these; no action needed =====
+      # Ops store (real instructor/space leads + CRM + outreach sequence state,
+      # uploaded with scripts/push_ops_store.py) lives on the cache disk so it
+      # survives deploys/restarts. Render allows one disk per service.
+      - key: OPS_DATA_DIR
+        value: /opt/render/project/src/data/cache/ops
+      # Real source CSVs (roster, past-instructor performance, locations,
+      # revenue health, competitor pricing, demand) also live on the disk so
+      # the matching/coverage/revenue engines have data. Upload them with
+      # scripts/push_manual_data.py (they're gitignored — never in the repo).
+      - key: MANUAL_DATA_DIR
+        value: /opt/render/project/src/data/cache/manual
+      # Viewing + normal CRM edits are OPEN (internal tool, by request). But
+      # DANGEROUS writes (data upload, outreach send/tick, Manatal writes) can
+      # be locked without re-adding a login: set OPS_WRITE_TOKEN below and those
+      # endpoints require an X-Ops-Write-Token header (scripts pass it via env;
+      # the dashboard prompts once). Unset = fully open, as today.
+      #
+      # Outreach engine stays in DRY RUN (queues/schedules but sends nothing)
+      # until you set SEND_ENABLED="1" AND the two SMTP secrets below.
+      - key: OUTREACH_SEND_ENABLED
+        value: "0"
+      - key: OUTREACH_MAX_PER_DAY
+        value: "25"
+      # Manatal ATS. ENABLED + the (non-secret) base URL are pre-filled here, so
+      # the ONLY thing you set by hand is MANATAL_API_KEY (see secrets below).
+      # With ENABLED=1 but no key, it stays a safe no-op (not_configured); once
+      # the key is set it goes READ_ONLY. WRITE stays "0" — do a dry-run push
+      # first, then flip MANATAL_WRITE_ENABLED to "1" in the dashboard.
+      - key: MANATAL_ENABLED
+        value: "1"
+      - key: MANATAL_WRITE_ENABLED
+        value: "0"
+      - key: MANATAL_API_BASE_URL
+        value: https://api.manatal.com
+
+      # ===== SET ONCE, BY HAND, in the Render dashboard (Environment tab) =====
+      # Optional lock for dangerous writes (see above). Leave unset to stay
+      # fully open; set a strong random value to require it before enabling
+      # live email or Manatal writes on the public URL.
+      - key: OPS_WRITE_TOKEN
+        sync: false
+      # NOT a secret, but recommended NOW — the name signed on outreach emails
+      # (e.g. "Cornelia"). Until it's set, drafts carry a "[Staff Name]"
+      # placeholder and are blocked from sending. Set it in the dashboard, or
+      # hardcode it here by replacing the next line with:  value: "Your Name"
+      - key: OUTREACH_STAFF_NAME
+        sync: false
+      # ONLY to turn on real email — a Gmail/Workspace address and its APP
+      # password (not the account password). Leave blank to stay in dry run.
+      - key: OUTREACH_SMTP_USER
+        sync: false
+      - key: OUTREACH_SMTP_PASSWORD
+        sync: false
+      # ===== MANATAL — set MANATAL_API_KEY here (the ONLY required one) ======
+      # Generate it in Manatal → Administration → Features → Open API →
+      # "Generate new token", then paste the value into MANATAL_API_KEY in the
+      # Render dashboard. It is a SECRET (sent as "Authorization: Token <key>")
+      # — dashboard only, NEVER in git/render.yaml. Rotate it if it has ever
+      # been pasted into a chat/screenshot. The two DEFAULT_* are optional:
+      # owner = Manatal user id to own candidates; organization = client id,
+      # needed only if you use the "Create Job" button.
+      - key: MANATAL_API_KEY
+        sync: false
+      - key: MANATAL_DEFAULT_OWNER_ID
+        sync: false
+      - key: MANATAL_DEFAULT_ORGANIZATION
+        sync: false
+
+  # ===== SCHEDULED JOBS (Render Cron Jobs) ================================
+  # These run the loop on a schedule instead of only on a click. They call the
+  # public web service; if OPS_WRITE_TOKEN is set, add it here too so the
+  # guarded endpoints accept the call.
+  - type: cron
+    name: allcpr-outreach-tick
+    env: python
+    schedule: "30 9,14 * * 1-5"          # weekdays 9:30 & 14:30 UTC
+    buildCommand: pip install -r requirements.txt
+    startCommand: python scripts/outreach_tick.py --url https://allcpr-site-intelligence.onrender.com
+    envVars:
+      - key: OPS_WRITE_TOKEN
+        sync: false
+  - type: cron
+    name: allcpr-daily-scan
+    env: python
+    schedule: "0 15 * * *"               # daily 15:00 UTC
+    buildCommand: pip install -r requirements.txt
+    startCommand: python scripts/daily_scan.py --url https://allcpr-site-intelligence.onrender.com --sync-manatal
+    envVars:
+      - key: OPS_WRITE_TOKEN
+        sync: false

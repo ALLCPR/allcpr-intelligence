@@ -1,0 +1,4 @@
+name,students,classes,zips,students_per_class,aha_bls_students,arc_bls_students,arc_cpr_students,teaches_aha,teaches_arc,home_city,home_state,home_zip,last_taught
+Alex Example,480,60,110,8.0,180,140,160,yes,yes,San Jose,CA,95112,2026-06-30
+Jordan Sample,300,50,70,6.0,0,120,180,no,yes,Fremont,CA,94536,2026-06-25
+Riley Demo,120,20,30,6.0,120,0,0,yes,no,Oakland,CA,94601,2026-05-10

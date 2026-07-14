@@ -1,0 +1,4 @@
+course_type,student_price,card_cost,instructor_cost,room_cost_assumption,minimum_students_break_even,target_students
+AHA_BLS,95,25,180,120,5,10
+ARC_BLS,85,20,150,120,4,10
+ARC_CPR_FA_AED,75,18,150,120,4,12

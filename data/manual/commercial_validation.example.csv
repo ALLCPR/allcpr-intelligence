@@ -1,0 +1,4 @@
+zip,address,property_name,sqft,monthly_rent,parking,available,classroom_fit,source_url,broker_contact,notes,updated_at
+95112,123 Example St,Example Plaza,900,3200,Yes,Yes,Good,https://example.com/listing/123,John Broker (555-0100),Good parking; near light rail,2026-06-11
+95112,455 Second Ave,Second Ave Suites,650,2600,Mixed,No,Possible,https://example.com/listing/455,Jane Agent,Smaller suite; currently leased,2026-05-20
+97202,88 SE Demo Rd,Demo Business Center,1100,3800,Yes,Yes,Good,https://example.com/listing/88,Pat Realtor (555-0199),Ample lot; ground floor,2026-06-01

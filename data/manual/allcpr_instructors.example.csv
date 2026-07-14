@@ -1,0 +1,3 @@
+name,city,state,zip,courses,certifications,expiration_dates,travel_radius_miles,availability,pay_rate,reliability_notes,languages,long_term_interest,verified
+Jane Example,San Jose,CA,95112,AHA_BLS;ARC_BLS,AHA BLS Instructor;ARC BLS Instructor,2027-03-01;2026-11-15,25,Weekends and weekday evenings,$60/hr,Always on time; great student reviews,English;Spanish,YES,yes
+Sam Sample,Santa Clara,CA,95050,ARC_CPR_FA_AED,ARC CPR/FA/AED Instructor,2026-08-01,15,Saturdays only,$50/hr,New instructor - shadowed twice,English,MAYBE,no

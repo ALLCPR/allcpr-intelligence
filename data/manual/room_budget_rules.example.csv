@@ -1,0 +1,2 @@
+max_hourly_rate,max_daily_rate,minimum_capacity,weekend_required,evening_required,parking_required,recurring_required
+75,400,8,yes,no,yes,yes

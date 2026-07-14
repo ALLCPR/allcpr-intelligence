@@ -1,0 +1,8 @@
+{"elements": [
+  {"type": "node", "lat": 37.330, "lon": -121.880, "tags": {"amenity": "childcare"}},
+  {"type": "node", "lat": 37.341, "lon": -121.889, "tags": {"amenity": "kindergarten"}},
+  {"type": "node", "lat": 37.333, "lon": -121.870, "tags": {"amenity": "school"}},
+  {"type": "node", "lat": 37.330, "lon": -121.882, "tags": {"amenity": "parking"}},
+  {"type": "node", "lat": 37.331, "lon": -121.884, "tags": {"shop": "supermarket"}},
+  {"type": "node", "lat": 45.482, "lon": -122.644, "tags": {"amenity": "childcare"}}
+]}

@@ -1,0 +1,3 @@
+candidate_id,address_match,listing_url,asking_rent,square_feet,parking_notes,broker_notes,validation_status
+,"1631 N First St, San Jose",https://www.example-listings.com/123,32,1800,"12 dedicated spaces + street","Broker: Jane Doe (555-0100). Ground-floor suite, ADA accessible. Field-tested with ads test.",validated
+,"500 W 5th St, Winston-Salem",https://www.example-listings.com/456,21,1400,"Shared lot, ~40 spaces","Pending landlord callback.",pending

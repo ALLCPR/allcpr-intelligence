@@ -1,0 +1,46 @@
+.map-section { margin: 22px 0; }
+.map-toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  background: var(--soft, #f4f7f6); border: 1px solid var(--line, #d8dee2);
+  border-radius: 8px; padding: 10px 12px; margin: 8px 0; }
+.map-toolbar fieldset { border: 0; margin: 0; padding: 0; display: flex;
+  gap: 8px; flex-wrap: wrap; align-items: center; }
+.map-toolbar legend { font-weight: 700; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--muted, #5f6c72); padding: 0 6px 0 0; }
+.map-toolbar label { font-size: 12px; white-space: nowrap; }
+.map-count { font-weight: 700; }
+.map-reset { cursor: pointer; color: var(--accent, #0f766e); background: none;
+  border: 0; font-size: 12px; text-decoration: underline; }
+.map-layout { display: flex; gap: 12px; }
+#allcpr-map { flex: 1 1 68%; height: 460px; border: 1px solid var(--line, #d8dee2);
+  border-radius: 8px; }
+.map-sidebar { flex: 0 0 30%; max-height: 460px; overflow-y: auto;
+  border: 1px solid var(--line, #d8dee2); border-radius: 8px; }
+.map-row { display: flex; gap: 8px; align-items: center; padding: 8px 10px;
+  border-bottom: 1px solid var(--line, #d8dee2); cursor: pointer; }
+.map-row:hover, .map-row.hover { background: var(--soft, #f4f7f6); }
+.map-row.selected { background: #e6f4f1;
+  box-shadow: inset 3px 0 0 var(--accent, #0f766e); }
+.map-row-rank { color: var(--muted, #5f6c72); font-variant-numeric: tabular-nums; }
+.map-row-name { flex: 1; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; }
+.map-row-score { font-weight: 700; font-variant-numeric: tabular-nums; }
+.map-chip { font-size: 11px; font-weight: 700; color: #fff; border-radius: 999px;
+  padding: 1px 7px; }
+.map-empty { padding: 14px; color: var(--muted, #5f6c72); }
+.map-note { color: var(--muted, #5f6c72); font-size: 12px; margin: 6px 0; }
+.map-legend { background: #fff; padding: 6px 8px;
+  border: 1px solid var(--line, #d8dee2); border-radius: 6px;
+  font-size: 11px; line-height: 1.6; }
+.map-legend i { display: inline-block; width: 10px; height: 10px;
+  border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.map-toolbar-toggle { display: none; }
+.allcpr-card-flash { animation: allcprFlash 1.4s ease-out; }
+@keyframes allcprFlash { 0% { background: #fff7cc; } 100% { background: transparent; } }
+@media (max-width: 760px) {
+  .map-layout { flex-direction: column; }
+  #allcpr-map { height: 340px; }
+  .map-sidebar { flex: 1 1 auto; max-height: 240px; }
+  .map-toolbar-toggle { display: inline-block; cursor: pointer; font-weight: 700;
+    color: var(--accent, #0f766e); background: none; border: 0; }
+  .map-toolbar.collapsed fieldset { display: none; }
+}

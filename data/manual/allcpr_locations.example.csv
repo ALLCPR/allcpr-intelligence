@@ -1,0 +1,3 @@
+location_name,address,zip,active_status,courses_offered,capacity,rent_cost,parking_notes,room_notes,average_monthly_enrollment
+Example Training Room San Jose,123 Example St,95112,active,ARC_BLS;ARC_CPR_FA_AED,12,900,Free lot behind building,Movable tables; open floor for 6 manikins,48
+Example Former Site Santa Clara,456 Sample Ave,95050,inactive,ARC_CPR_FA_AED,10,1200,Street parking only,Closed 2025 - landlord ended lease,22

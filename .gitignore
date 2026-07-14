@@ -1,0 +1,126 @@
+# Secrets — never commit
+.env
+*.env
+.env.*
+!.env.example
+
+# Generated site-intelligence data — may contain proprietary signals
+data/raw/
+!data/raw/
+!data/raw/rent_overrides.csv
+!data/raw/job_postings.csv
+!data/raw/commercial_overrides.example.csv
+!data/raw/enrollware_classes.example.csv
+# Proprietary ALLCPR internal data — NEVER commit (explicit re-ignore so a
+# stray `git add data/raw/` can't leak them past the `!data/raw/` un-ignore).
+data/raw/allcpr_actual_prices.csv
+data/raw/allcpr_backtest_sites.csv
+# Real Enrollware class history is proprietary — keep local; example is tracked.
+data/raw/enrollware_classes.csv
+data/raw/enrollware_classes.xlsx
+data/raw/enrollware_classes.xls
+data/raw/enrollware_locations.csv
+data/raw/enrollware_locations.xlsx
+data/raw/enrollware_locations.xls
+# Real commercial overrides may carry broker PII — keep local; example is tracked.
+data/raw/commercial_overrides.csv
+data/enriched/
+data/scored/
+data/processed/
+!data/processed/
+# Opt-in: the dashboard payloads may be committed deliberately so Render has
+# data to serve (`git add -f` or these un-ignores). latest_report.json contains
+# real ZIP demand figures — only commit it to a private repo. national_demand.json
+# (~38 MB) and national_demand_enriched.json (~15 MB) are now built fresh in the
+# Render build step (see render.yaml), so they are NOT committed.
+!data/processed/latest_report.json
+!data/processed/model_backtest.json
+!data/processed/national_demand_lite.json
+!data/processed/national_demand_lite.json.gz
+!data/processed/zip_details.jsonl
+!data/processed/zip_details_index.json
+# Enriched layer (~15 MB) IS committed so Render serves it with zero build
+# (the dashboard prefers it). The ~38 MB baseline is redundant at runtime and
+# stays out of the repo.
+!data/processed/national_demand_enriched.json
+data/processed/national_demand.json
+!data/processed/bulk_enrichment.json
+!data/processed/api_candidates.json
+# Large real bulk datasets (HIFLD/NPI/IPEDS/OSM) are downloaded locally, never
+# committed. The tiny sample fixtures under data/reference/bulk_samples/ ARE.
+data/raw/bulk/
+data/reports/
+data/cache/
+# Manual commercial-validation: keep the example committed, the active file
+# private (it can hold broker contacts / proprietary lease notes).
+data/manual/
+!data/manual/
+# Real ops-layer imports carry internal ALLCPR data (roster, pay, economics,
+# revenue health, credential rules) — keep ALL of them local. Only the tracked
+# *.example.csv format templates are committed. This is a blanket rule so a new
+# real CSV (e.g. site_revenue_health.csv) can never be committed by accident.
+data/manual/*.csv
+data/manual/*.json
+!data/manual/*.example.csv
+# Local staging area for raw Enrollware/competitor/student exports (real PII:
+# instructor roster, student addresses, n8n workflow configs). Never commit —
+# run scripts/import_enrollware_ops_data.py to derive the gitignored manual CSVs.
+Enrollware自动化数据导出/
+# Internal SOPs / contracts / handoff docs (contain plaintext credentials,
+# signed agreements, and PII). Never commit — reference only, locally.
+Folder/
+# Runtime CRM/lead state (contacts, outreach notes) — never commit.
+data/ops/
+*.xlsx
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Logs
+*.log
+logs/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Microsoft Office temporary lock files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# Internal design docs / implementation plans — kept local only.
+docs/superpowers/
+
+# Local data backups from in-place patches — kept local only.
+data/processed/_backup_*/
+
+# Enrichment staging/working files and timestamped in-place backups — local only.
+data/processed/_*
+data/processed/*.backup.*.json
